@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Un interrogatoire en quatre temps qui transforme une idee floue en prompt IA precis.">
+<style>html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Le Bon Prompt</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500&family=Jost:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#FFFFFF; --ink:#000000; --ink2:#2B2B2B; --ink3:#424242;
+  --rule:#000000; --hair:#C9C9C9; --alert:#8E1111;
+  --serif:"Bodoni Moda",Didot,"Times New Roman",serif;
+  --sans:"Jost",Futura,"Century Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:18px; line-height:1.65;
+  font-weight:400; padding:0 24px; padding-block:0 110px; -webkit-font-smoothing:antialiased}
+#prog{position:fixed; top:0; left:0; height:3px; background:var(--ink); width:0; z-index:9; transition:width .5s cubic-bezier(.22,.7,.3,1)}
+@media (prefers-reduced-motion:reduce){#prog{transition:none}}
+.shell{max-width:800px; margin:0 auto; transition:max-width .4s ease}
+body[data-wide="1"] .shell{max-width:960px}
+
+.mast{text-align:center; padding-block:40px 0}
+.word{font-family:var(--serif); font-weight:700; font-size:clamp(21px,5.4vw,32px); letter-spacing:.19em;
+  margin:0; line-height:1; text-transform:uppercase; cursor:pointer; background:none; border:0; color:var(--ink)}
+.mast hr{border:0; border-top:2px solid var(--rule); margin:22px 0 0}
+.mast .thin{border-top:1px solid var(--rule); margin-top:4px}
+
+.stage{padding-block:58px 0}
+.eyebrow{font-size:12.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink2); margin:0 0 20px; font-weight:600}
+.ask{font-family:var(--serif); font-weight:600; font-size:clamp(32px,5.4vw,54px); line-height:1.1; letter-spacing:-.005em;
+  margin:0 0 16px; text-wrap:balance}
+.guide{font-size:17.5px; color:var(--ink3); margin:0 0 32px; max-width:56ch; font-weight:400; line-height:1.6}
+
+ul.list{list-style:none; margin:0; padding:0; border-top:2px solid var(--rule)}
+ul.list li{border-bottom:1px solid var(--hair)}
+ul.list li:last-child{border-bottom:2px solid var(--rule)}
+.row{display:flex; width:100%; text-align:left; align-items:baseline; gap:20px; cursor:pointer;
+  background:none; border:0; font-family:var(--sans); color:var(--ink);
+  padding:21px 0; transition:background .14s, padding .14s, color .14s}
+.row .t{font-size:21px; font-weight:500; flex:0 0 33%; line-height:1.3}
+.row .d{font-size:16px; color:var(--ink3); font-weight:400; flex:1 1 auto; line-height:1.45}
+.mark{flex:0 0 auto; width:16px; height:16px; border:2px solid currentColor; align-self:center}
+.row[aria-pressed="true"] .mark{background:currentColor; box-shadow:inset 0 0 0 3px var(--paper)}
+.row:hover[aria-pressed="true"] .mark,.row:focus-visible[aria-pressed="true"] .mark{box-shadow:inset 0 0 0 3px var(--ink)}
+.row:hover,.row:focus-visible{background:var(--ink); color:var(--paper); padding-inline:18px; outline:none}
+.row:hover .d,.row:focus-visible .d{color:#D2D2D2}
+.row[aria-pressed="true"] .t{font-weight:600}
+@media (max-width:660px){ .row{flex-direction:column; gap:5px; align-items:stretch; padding:19px 0}
+   .row .d{flex:none} .row .t{flex:none; font-size:20px} }
+
+textarea{width:100%; font-family:var(--sans); font-weight:400; font-size:clamp(19px,2.4vw,22px); line-height:1.55;
+  color:var(--ink); background:transparent; border:0; border-bottom:2px solid var(--rule);
+  padding:0 0 14px; resize:none; overflow:hidden}
+textarea::placeholder{color:#8A8A8A}
+textarea:focus{outline:none; border-bottom-width:3px; padding-bottom:13px}
+.tools{display:flex; align-items:center; gap:16px; margin-top:18px; flex-wrap:wrap}
+.mic{display:inline-flex; align-items:center; gap:10px; font-family:var(--sans); font-size:13px; letter-spacing:.16em;
+  text-transform:uppercase; font-weight:600; cursor:pointer; background:none; color:var(--ink);
+  border:2px solid var(--rule); padding:11px 20px}
+.mic:hover{background:var(--ink); color:var(--paper)}
+.mic.rec{background:var(--ink); color:var(--paper)}
+.mic.rec svg{animation:pulse 1.1s infinite}
+@keyframes pulse{50%{opacity:.2}}
+@media (prefers-reduced-motion:reduce){.mic.rec svg{animation:none}}
+html.nomic .mic,html.nomic .micok{display:none}
+html:not(.nomic) .micbad{display:none}
+.note{font-size:14.5px; color:var(--ink3); font-weight:400; max-width:46ch; line-height:1.45}
+.alert{color:var(--alert); font-size:15px; font-weight:500}
+
+.pills{display:flex; flex-wrap:wrap; gap:9px; margin-bottom:36px}
+.pill{font-family:var(--sans); font-size:13px; letter-spacing:.14em; text-transform:uppercase; font-weight:600;
+  cursor:pointer; background:none; color:var(--ink); border:1px solid var(--ink3); padding:12px 18px}
+.pill:hover{border-color:var(--rule); border-width:2px; padding:11px 17px}
+.pill[aria-pressed="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+.sect{font-size:12.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink2); margin:0 0 14px; font-weight:600}
+
+.nav{display:flex; align-items:center; gap:28px; flex-wrap:wrap; margin-top:46px}
+.go{font-family:var(--sans); font-size:14px; letter-spacing:.18em; text-transform:uppercase; font-weight:600;
+  cursor:pointer; background:var(--ink); color:var(--paper); border:2px solid var(--ink); padding:17px 38px}
+.go:hover:not(:disabled){background:var(--paper); color:var(--ink)}
+.txtbtn{font-family:var(--sans); font-size:14px; letter-spacing:.16em; text-transform:uppercase; font-weight:500;
+  cursor:pointer; background:none; border:0; color:var(--ink2); padding:7px 0; border-bottom:2px solid var(--hair)}
+.txtbtn:hover{color:var(--ink); border-color:var(--ink)}
+
+.load{font-family:var(--serif); font-weight:600; font-size:clamp(26px,4.4vw,40px); line-height:1.15; margin:0}
+.bar{height:2px; background:var(--hair); margin-top:36px; overflow:hidden}
+.bar i{display:block; height:2px; width:34%; background:var(--ink); animation:slide 1.5s infinite ease-in-out}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(390%)}}
+@media (prefers-reduced-motion:reduce){.bar i{animation:none; width:100%}}
+
+pre.out[contenteditable="true"]{outline:none}
+pre.out[contenteditable="true"]:focus{background:#FAFAFA; box-shadow:0 0 0 2px var(--ink)}
+.editnote{font-size:14.5px; color:var(--ink3); margin:14px 0 0; max-width:60ch}
+.cta{display:inline-block; font-family:var(--sans); font-size:13px; letter-spacing:.16em; text-transform:uppercase;
+  font-weight:600; color:var(--ink); text-decoration:none; border:2px solid var(--ink); padding:13px 22px}
+.cta:hover{background:var(--ink); color:var(--paper)}
+.ctas{display:flex; flex-wrap:wrap; gap:12px; margin-top:18px}
+.foot a{color:var(--ink3); text-decoration:none; border-bottom:1px solid var(--hair)}
+.foot a:hover{color:var(--ink); border-color:var(--ink)}
+pre.out{font-family:var(--mono); font-size:14.5px; line-height:1.8; white-space:pre-wrap; overflow-wrap:anywhere;
+  border-top:2px solid var(--rule); border-bottom:2px solid var(--rule);
+  padding:32px 0; margin:0; max-height:60vh; overflow:auto; color:var(--ink)}
+.promo{border-top:1px solid var(--hair); margin-top:66px; padding-top:24px}
+.promo p{font-size:16.5px; color:var(--ink3); margin:0 0 14px; max-width:54ch}
+.promo em{font-family:var(--serif); font-style:italic; font-weight:600; color:var(--ink); font-size:18px}
+.promo a{font-size:13px; letter-spacing:.18em; text-transform:uppercase; font-weight:600; color:var(--ink);
+  text-decoration:none; border-bottom:2px solid var(--ink); padding-bottom:4px}
+.foot{border-top:1px solid var(--hair); margin-top:76px; padding-top:20px;
+  font-size:12.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); font-weight:500;
+  display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap}
+:focus-visible{outline:3px solid var(--ink); outline-offset:3px}
+</style>
+
+<div id="prog"></div>
+<div class="shell">
+
+  <div class="mast">
+    <button class="word" id="home" type="button">Le Bon Prompt</button>
+    <hr><hr class="thin">
+  </div>
+
+  <section class="stage" id="sc-pick">
+    <p class="eyebrow" id="pk-eye"></p>
+    <h2 class="ask" id="pk-ask"></h2>
+    <p class="guide" id="pk-guide"></p>
+    <ul class="list" id="pk-list"></ul>
+    <div id="pk-other" hidden style="margin-top:36px">
+      <textarea id="pk-txt" rows="2" placeholder="Écrivez ici, ou parlez…"></textarea>
+      <div class="tools">
+        <button class="mic" type="button" id="pk-mic"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg><span>Parler</span></button>
+        <span class="note micok">Cliquez, puis parlez : ce que vous dites s'écrit tout seul.</span>
+        <span class="note micbad">Le micro n'est pas disponible dans cette fenêtre. Écrivez votre réponse.</span>
+      </div>
+    </div>
+    <p class="alert" id="pk-err" hidden>Cochez au moins une réponse pour continuer.</p>
+    <div class="nav">
+      <button class="go" type="button" id="pk-go">Continuer</button>
+      <button class="txtbtn" type="button" id="pk-back" hidden>Retour</button>
+      <button class="txtbtn" type="button" id="demo">Voir un exemple</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-need" hidden>
+    <p class="eyebrow" id="nd-eye"></p>
+    <h2 class="ask">Racontez-moi.</h2>
+    <p class="guide" id="nd-guide"></p>
+    <textarea id="nd-txt" rows="5" placeholder="Ce que vous voulez obtenir, à quoi ça doit servir, pour qui, avec quoi, dans quel délai… Plus vous en dites, plus les questions qui suivent seront justes."></textarea>
+    <div class="tools">
+      <button class="mic" type="button" id="nd-mic"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg><span>Parler</span></button>
+      <span class="note micok">Cliquez, puis parlez : ce que vous dites s'écrit tout seul.</span>
+      <span class="note micbad">Le micro n'est pas disponible dans cette fenêtre. Écrivez votre réponse.</span>
+    </div>
+    <p class="alert" id="nd-err" hidden>Deux ou trois phrases, au minimum : les questions qui suivent sont écrites à partir de ce que vous dites ici.</p>
+    <div class="nav">
+      <button class="go" type="button" id="nd-go">Continuer</button>
+      <button class="txtbtn" type="button" id="nd-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-ask" hidden>
+    <p class="eyebrow" id="as-eye"></p>
+    <h2 class="ask" id="as-ask"></h2>
+    <p class="guide" id="as-guide"></p>
+    <textarea id="as-txt" rows="3" placeholder="Votre réponse…"></textarea>
+    <div class="tools">
+      <button class="mic" type="button" id="as-mic"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg><span>Parler</span></button>
+      <span class="note micok">Cliquez, puis parlez : ce que vous dites s'écrit tout seul.</span>
+      <span class="note micbad">Le micro n'est pas disponible dans cette fenêtre. Écrivez votre réponse.</span>
+    </div>
+    <div class="nav">
+      <button class="go" type="button" id="as-go">Suivant</button>
+      <button class="txtbtn" type="button" id="as-back">Retour</button>
+      <button class="txtbtn" type="button" id="as-skip">Je ne sais pas</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-wait" hidden>
+    <p class="eyebrow">Interrogatoire</p>
+    <p class="load" id="wt-txt"></p>
+    <div class="bar"><i></i></div>
+  </section>
+
+  <section class="stage" id="sc-fmt" hidden>
+    <p class="eyebrow">Dernière étape</p>
+    <h2 class="ask">Vous voulez récupérer quoi ?</h2>
+    <p class="guide">Cochez-en plusieurs si votre livrable en réunit plusieurs : un document qui contient des tableaux et des diapositives, un site accompagné de ses visuels. Tout arrivera regroupé, chaque partie séparée.</p>
+    <p class="sect">Format · plusieurs choix possibles</p>
+    <div class="pills" id="fmt"></div>
+    <p class="sect">Niveau de détail · un seul</p>
+    <div class="pills" id="det"></div>
+    <div class="nav">
+      <button class="go" type="button" id="ft-go">Générer le prompt</button>
+      <button class="txtbtn" type="button" id="ft-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-out" hidden>
+    <p class="eyebrow">Votre prompt</p>
+    <h2 class="ask">Copiez-le dans Claude, ChatGPT ou Gemini.</h2>
+    <p class="guide" id="ot-guide"></p>
+    <pre class="out" id="out" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Votre prompt, modifiable"></pre>
+    <p class="editnote">Cliquez directement dans le texte pour le corriger ou l'enrichir avant de le copier. Les fautes sont soulignées par le navigateur.</p>
+    <div class="nav">
+      <button class="go" type="button" id="copy">Copier</button>
+      <button class="txtbtn" type="button" id="refine" hidden>Affiner</button>
+      <button class="txtbtn" type="button" id="stop" hidden>Arrêter</button>
+      <button class="txtbtn" type="button" id="revert" hidden>Version d'origine</button>
+      <button class="txtbtn" type="button" id="ot-back">Modifier</button>
+      <button class="txtbtn" type="button" id="restart">Recommencer</button>
+      <span class="note" id="toast" aria-live="polite"></span>
+    </div>
+    <p class="alert" id="ot-err" hidden></p>
+    <div class="promo">
+      <p class="eyebrow" style="margin-bottom:12px">Pour aller plus loin</p>
+      <p>Un bon prompt commence avant ce site : par une idée claire, et par de vraies recherches. Il y a un ordre pour interroger les IA — laquelle pour chercher, laquelle pour trier, laquelle pour construire. Peu de gens le connaissent.</p>
+      <p>C'est ce que j'enseigne dans <em>Maîtriser l'IA</em> : une session intensive, 5 000 FCFA.</p>
+      <div class="ctas">
+        <a class="cta" href="https://wa.me/message/P3F5RN5SQDSZF1" target="_blank" rel="noopener">Réserver sur WhatsApp</a>
+        <a class="cta" href="mailto:ndecieboulandi@gmail.com?subject=Formation%20Maitriser%20l%27IA">Réserver par e-mail</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>Un prompt tient en cinq pièces : rôle, contexte, tâche, contrainte, format.</span>
+    <span>Gratuit · <a href="https://ndecie.github.io/Ndecie-Boulandi-Portfolio/" target="_blank" rel="noopener">Un site de Ndecie Boulandi</a></span>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+
+var ACTIONS=[
+ {id:"creer",label:"Créer",desc:"Produire un fichier, un document, un support"},
+ {id:"analyser",label:"Analyser",desc:"Comprendre des données, un document, une situation"},
+ {id:"rediger",label:"Rédiger",desc:"Écrire un texte : mail, courrier, article"},
+ {id:"organiser",label:"Organiser",desc:"Planifier, structurer, suivre, répartir"},
+ {id:"automatiser",label:"Automatiser",desc:"Gagner du temps sur une tâche répétitive"},
+ {id:"expliquer",label:"Expliquer",desc:"Comprendre un sujet ou le faire comprendre"},
+ {id:"decider",label:"Décider",desc:"Comparer, arbitrer, chiffrer"},
+ {id:"corriger",label:"Corriger",desc:"Relire, reformuler, résumer, traduire"},
+ {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}
+];
+var OBJETS={
+ creer:[{id:"tableau",label:"Un tableau, un fichier Excel",desc:"Suivi, recensement, calcul"},
+   {id:"document",label:"Un document, un rapport",desc:"Note, procédure, dossier"},
+   {id:"presentation",label:"Une présentation",desc:"Diapositives pour une réunion"},
+   {id:"formulaire",label:"Un formulaire",desc:"À faire remplir par d'autres"},
+   {id:"modele",label:"Un modèle réutilisable",desc:"Un gabarit qui resservira"},
+   {id:"visuel",label:"Un contenu visuel",desc:"Image, vidéo, carrousel, affiche"},
+   {id:"web",label:"Un site, une page",desc:"Vitrine, portfolio, mini-site"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ analyser:[{id:"chiffres",label:"Des données chiffrées",desc:"Ventes, budget, paie, statistiques"},
+   {id:"doc",label:"Un document, un contrat",desc:"Points clés, risques, oublis"},
+   {id:"retours",label:"Des réponses, des retours",desc:"Enquête, avis, remontées terrain"},
+   {id:"situation",label:"Une situation, un problème",desc:"Causes, leviers, scénarios"},
+   {id:"texte",label:"Un texte, un discours",desc:"Fond, ton, structure, arguments"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ rediger:[{id:"mail",label:"Un e-mail, un message",desc:"Relance, réponse, annonce"},
+   {id:"courrier",label:"Un courrier officiel",desc:"Administration, client, partenaire"},
+   {id:"publication",label:"Un article, une publication",desc:"Blog, LinkedIn, newsletter"},
+   {id:"pitch",label:"Un argumentaire",desc:"Convaincre, vendre, défendre"},
+   {id:"compterendu",label:"Un compte-rendu",desc:"Réunion, mission, incident"},
+   {id:"candidature",label:"Un CV, une lettre",desc:"Candidature, dossier, bourse"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ organiser:[{id:"planning",label:"Un planning",desc:"Échéances, rotations, jalons"},
+   {id:"suivi",label:"Un suivi de dossiers",desc:"Qui fait quoi, où ça en est"},
+   {id:"reunion",label:"Une réunion",desc:"Ordre du jour, déroulé, décisions"},
+   {id:"projet",label:"Un projet",desc:"Étapes, budget, risques"},
+   {id:"roles",label:"Une équipe, des rôles",desc:"Répartition, délégation"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ automatiser:[{id:"tableur",label:"Un tableur",desc:"Formules, listes déroulantes, macros"},
+   {id:"mails",label:"Des e-mails répétitifs",desc:"Modèles, tri, règles, relances"},
+   {id:"fichiers",label:"Un classement de fichiers",desc:"Renommage, tri, archivage"},
+   {id:"saisie",label:"Une saisie de données",desc:"Recopie, import, contrôle"},
+   {id:"relance",label:"Des rappels, des relances",desc:"Alertes de retard, échéances"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ expliquer:[{id:"comprendre",label:"Comprendre un sujet",desc:"Qu'on me l'explique simplement"},
+   {id:"support",label:"Un support de formation",desc:"Cours, module, livret"},
+   {id:"tuto",label:"Un tutoriel pas à pas",desc:"Chaque clic, chaque écran"},
+   {id:"quiz",label:"Un quiz, des exercices",desc:"Évaluer ou faire pratiquer"},
+   {id:"vulgariser",label:"Une vulgarisation",desc:"Adapter au niveau du public"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ decider:[{id:"comparer",label:"Comparer des options",desc:"Critères, avantages, limites"},
+   {id:"risque",label:"Évaluer un risque",desc:"Ce qui peut mal tourner"},
+   {id:"chiffrer",label:"Chiffrer, budgétiser",desc:"Coûts, marge, tarif"},
+   {id:"prestataire",label:"Choisir un prestataire",desc:"Grille, questions à poser"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ corriger:[{id:"orthographe",label:"Corriger la langue",desc:"Orthographe, style, sans toucher au fond"},
+   {id:"reformuler",label:"Reformuler",desc:"Plus clair, plus court, plus pro"},
+   {id:"traduire",label:"Traduire",desc:"En gardant le ton"},
+   {id:"resumer",label:"Résumer",desc:"Garder l'essentiel"},
+   {id:"adapter",label:"Adapter à un autre public",desc:"Même fond, autre registre"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ autre:[{id:"autre",label:"Je le dis avec mes mots",desc:"En une phrase, ce que vous cherchez"}]
+};
+var DOMAINES=[
+ {id:"rh",label:"RH & paie",desc:"Bulletins, absences, congés, contrats"},
+ {id:"finance",label:"Finance & comptabilité",desc:"Budget, trésorerie, factures"},
+ {id:"marketing",label:"Marketing & communication",desc:"Contenus, campagnes, marque"},
+ {id:"commercial",label:"Commercial & ventes",desc:"Prospection, devis, clients"},
+ {id:"admin",label:"Administration & juridique",desc:"Courriers, contrats, conformité"},
+ {id:"operations",label:"Opérations & logistique",desc:"Production, stocks, achats"},
+ {id:"formation",label:"Enseignement & formation",desc:"Cours, ateliers, évaluation"},
+ {id:"sante",label:"Santé & social",desc:"Suivi, dossiers, prévention"},
+ {id:"tech",label:"Informatique & technique",desc:"Code, données, systèmes"},
+ {id:"assoc",label:"Association & terrain",desc:"GIE, coopérative, ONG, bailleurs"},
+ {id:"perso",label:"Projet personnel, études",desc:"Organisation, candidatures"},
+ {id:"autre",label:"Autre domaine",desc:"Je le dis avec mes mots"}
+];
+var ROLES={rh:"responsable RH et paie chevronné, à l'aise avec les bulletins, les absences, les saisies volontaires et les régularisations",
+ finance:"contrôleur de gestion et expert-comptable, rigoureux sur les chiffres et la traçabilité",
+ marketing:"directeur marketing et communication digitale, orienté résultats concrets",
+ commercial:"responsable commercial expérimenté, direct et orienté client",
+ admin:"responsable administratif et juridique, précis sur la forme et la conformité",
+ operations:"responsable des opérations et de la logistique, habitué au terrain",
+ formation:"ingénieur pédagogique et formateur, capable d'expliquer sans jargon",
+ sante:"coordinateur santé et social, attentif à la confidentialité et au suivi",
+ tech:"ingénieur logiciel et data, pragmatique et attaché au code qui tourne",
+ assoc:"chargé de projet associatif, habitué aux GIE, coopératives et bailleurs de fonds",
+ perso:"coach en organisation personnelle, concret et réaliste",
+ autre:"expert reconnu du domaine concerné"};
+
+/* --- banque de questions : le détective sans IA --- */
+var Q_DOM={
+ rh:[{l:"Anomalies fréquentes",q:"Quelles erreurs reviennent le plus souvent chez vous, et à quelle fréquence ?",h:"Absences, congés, prêts, régularisations…"},
+   {l:"Répartition des saisies",q:"Qui saisit quoi aujourd'hui : le centre, le siège, ou les deux ?",h:"Et où ça se perd entre les deux."},
+   {l:"Règles internes",q:"Quelles règles, conventions ou dates limites ne souffrent aucune exception ?",h:""},
+   {l:"Périmètre",q:"Combien de personnes, de sites ou de pays sont concernés ?",h:""}],
+ finance:[{l:"Période et maille",q:"Sur quelle période et à quelle maille : le mois, le trimestre, le centre de coût ?",h:""},
+   {l:"Source des chiffres",q:"D'où sortent les chiffres, et sont-ils déjà fiables ou faut-il les nettoyer ?",h:""},
+   {l:"Seuils d'alerte",q:"Quel écart ou quel ratio doit déclencher une alerte chez vous ?",h:""},
+   {l:"Validation",q:"Qui valide au final, et qu'est-ce que cette personne regarde en premier ?",h:""}],
+ marketing:[{l:"Cible et canal",q:"À qui parlez-vous exactement, et où cette personne va-t-elle vous voir ?",h:"Son âge, son métier, la plateforme."},
+   {l:"Message clé",q:"S'il ne devait rester qu'une seule idée en tête, ce serait laquelle ?",h:""},
+   {l:"Ton de marque",q:"Quel ton est interdit chez vous, et quel ton vous ressemble ?",h:""},
+   {l:"Mesure du succès",q:"À quoi verrez-vous que ça a marché : vues, messages, ventes, rendez-vous ?",h:""}],
+ commercial:[{l:"Étape du cycle",q:"Où en êtes-vous avec cette personne : premier contact, relance, négociation ?",h:""},
+   {l:"Objection type",q:"Quelle objection revient systématiquement, et que répondez-vous aujourd'hui ?",h:""},
+   {l:"Différenciation",q:"Qu'est-ce qui vous distingue réellement de vos concurrents sur ce point ?",h:""},
+   {l:"Action attendue",q:"Quel prochain pas concret voulez-vous obtenir après lecture ?",h:""}],
+ admin:[{l:"Destinataire",q:"À qui s'adresse ce document, et quel pouvoir a cette personne sur votre dossier ?",h:""},
+   {l:"Références obligatoires",q:"Quels textes, articles, numéros ou procédures doivent obligatoirement figurer ?",h:""},
+   {l:"Délai",q:"Quelle échéance encadre cette démarche, et que se passe-t-il si elle est dépassée ?",h:""},
+   {l:"Risque de rejet",q:"Qu'est-ce qui pourrait faire rejeter ou contester ce document ?",h:""}],
+ operations:[{l:"Point de blocage",q:"Où exactement ça coince dans la chaîne, et depuis quand ?",h:""},
+   {l:"Volumes et délais",q:"Quels volumes traitez-vous, et quels délais faut-il tenir ?",h:""},
+   {l:"Qui fait quoi",q:"Qui intervient à chaque étape, et qui tranche en cas d'imprévu ?",h:""},
+   {l:"Contraintes terrain",q:"Qu'est-ce qui, sur le terrain, rend la solution théorique inapplicable ?",h:""}],
+ formation:[{l:"Niveau des apprenants",q:"Qui sont vos apprenants, et que savent-ils déjà sur le sujet ?",h:""},
+   {l:"Compétence visée",q:"Qu'est-ce qu'ils doivent savoir FAIRE à la fin, concrètement ?",h:"Pas « comprendre » : faire."},
+   {l:"Durée et conditions",q:"Combien de temps avez-vous, et dans quelles conditions matérielles ?",h:""},
+   {l:"Point de blocage",q:"Quelle notion coince toujours, année après année ?",h:""}],
+ sante:[{l:"Public suivi",q:"Qui sont les personnes concernées, et qu'est-ce qui les distingue ?",h:""},
+   {l:"Confidentialité",q:"Quelles informations ne doivent en aucun cas apparaître dans le résultat ?",h:""},
+   {l:"Cadre applicable",q:"Quel protocole, cadre ou référentiel s'impose à vous ?",h:""},
+   {l:"Usage du document",q:"Qui va lire ce document, et pour en faire quoi ensuite ?",h:""}],
+ tech:[{l:"Environnement",q:"Quel langage, quelle version, et où ça tourne ?",h:""},
+   {l:"Entrées et sorties",q:"Quelles données entrent, et quelles données doivent sortir ?",h:""},
+   {l:"Existant",q:"Qu'est-ce qui existe déjà et qu'il ne faut surtout pas casser ?",h:""},
+   {l:"Critère de test",q:"Comment saurez-vous que ça marche : quel test, quel cas limite ?",h:""}],
+ assoc:[{l:"Financeur et attentes",q:"Qui finance, et qu'est-ce que ce financeur attend précisément de vous ?",h:""},
+   {l:"Périmètre",q:"Combien de membres ou de bénéficiaires, et sur quelle zone ?",h:""},
+   {l:"Moyens réels",q:"De quoi disposez-vous vraiment : budget, matériel, personnes disponibles ?",h:""},
+   {l:"Tentatives passées",q:"Qu'a-t-on déjà tenté dans votre structure, et pourquoi ça n'a pas tenu ?",h:""}],
+ perso:[{l:"Temps disponible",q:"Combien de temps avez-vous réellement chaque semaine pour ça ?",h:"Soyez honnête, pas optimiste."},
+   {l:"Tentatives passées",q:"Qu'avez-vous déjà essayé, et à quel moment vous avez lâché ?",h:""},
+   {l:"Non négociable",q:"Qu'est-ce qui doit rester inchangé dans votre organisation actuelle ?",h:""},
+   {l:"Échéance",q:"Pour quand voulez-vous voir un premier résultat ?",h:""}],
+ autre:[{l:"Utilisateurs",q:"Qui va utiliser ce résultat, et avec quel niveau de connaissance du sujet ?",h:""},
+   {l:"Éléments obligatoires",q:"Quels éléments doivent obligatoirement y figurer ?",h:""},
+   {l:"Non négociable",q:"Quelles contraintes ne sont pas négociables : délai, longueur, langue, budget ?",h:""},
+   {l:"Enjeu",q:"Qu'est-ce qui se passe concrètement si le résultat n'est pas bon ?",h:""}]
+};
+var FAM={tableau:"grille",tableur:"grille",formulaire:"grille",suivi:"grille",
+ document:"doc",compterendu:"doc",modele:"doc",
+ mail:"mot",courrier:"mot",publication:"mot",pitch:"mot",candidature:"mot",
+ reformuler:"mot",orthographe:"mot",traduire:"mot",resumer:"mot",adapter:"mot",
+ presentation:"scene",
+ visuel:"image",web:"image",
+ chiffres:"loupe",doc:"loupe",retours:"loupe",situation:"loupe",texte:"loupe",
+ comparer:"loupe",risque:"loupe",chiffrer:"loupe",prestataire:"loupe",
+ planning:"plan",projet:"plan",roles:"plan",reunion:"plan",
+ mails:"rouage",fichiers:"rouage",saisie:"rouage",relance:"rouage",
+ comprendre:"ecole",support:"ecole",tuto:"ecole",quiz:"ecole",vulgariser:"ecole"};
+var Q_FAM={
+ grille:[{l:"Une ligne = quoi",q:"Que représente une seule ligne de votre tableau : une personne, un dossier, un mois ?",h:""},
+   {l:"Listes déroulantes",q:"Quelles colonnes doivent être des listes fermées, et avec quelles valeurs exactes ?",h:"C'est ce qui empêche chacun d'écrire à sa manière."}],
+ doc:[{l:"Longueur et lecture",q:"Quelle longueur maximale, et qui va le lire en diagonale ?",h:""},
+   {l:"Structure imposée",q:"Quelles parties sont imposées, et lesquelles êtes-vous libre d'écrire ?",h:""}],
+ mot:[{l:"Réaction visée",q:"Quelle réaction voulez-vous provoquer chez celui qui lit ?",h:""},
+   {l:"Registre",q:"Quel niveau de formalité : tutoiement, vouvoiement, protocole strict ?",h:""}],
+ scene:[{l:"Durée et auditoire",q:"Combien de minutes avez-vous, et devant combien de personnes ?",h:""},
+   {l:"Issue attendue",q:"Quelle décision ou quelle action attendez-vous à la fin ?",h:""}],
+ image:[{l:"Format et support",q:"Quelles dimensions, et où ça sera publié ?",h:""},
+   {l:"Charte",q:"Quelles couleurs, polices ou éléments de marque devez-vous respecter ?",h:""}],
+ loupe:[{l:"Décision à prendre",q:"Quelle décision devez-vous prendre à partir de cette analyse ?",h:""},
+   {l:"Données disponibles",q:"Qu'avez-vous réellement sous la main, et sous quelle forme ?",h:""}],
+ plan:[{l:"Diffusion et rythme",q:"Qui doit voir ce document, et à quelle fréquence sera-t-il mis à jour ?",h:""},
+   {l:"Échéances fixes",q:"Quelles dates ne peuvent absolument pas bouger ?",h:""}],
+ rouage:[{l:"Fréquence et durée",q:"Combien de fois par semaine faites-vous cette tâche, et combien de temps elle prend ?",h:""},
+   {l:"Outils en place",q:"Avec quels outils travaillez-vous : Excel, Outlook, Google, autre ?",h:""}],
+ ecole:[{l:"Support",q:"Sur quel support : papier, écran, ou en direct devant les gens ?",h:""},
+   {l:"Exemples",q:"Faut-il des exemples tirés de votre propre contexte, ou des exemples génériques suffisent ?",h:""}],
+ defaut:[{l:"Éléments obligatoires",q:"Quels éléments doivent obligatoirement figurer dans le résultat ?",h:""},
+   {l:"À éviter",q:"Qu'est-ce qui ne doit surtout pas s'y trouver ?",h:""}]
+};
+var Q_FIN={l:"Échecs passés",q:"Qu'est-ce qui a déjà raté quand vous avez essayé, seule ou avec une IA ?",h:"C'est souvent la réponse la plus utile de toutes."};
+
+function bank(){
+ var d=(Q_DOM[st.domaine]||Q_DOM.autre).slice(0,3);
+ var f=Q_FAM[FAM[st.objet]||"defaut"]||Q_FAM.defaut;
+ return d.concat(f,[Q_FIN]).map(function(x){return {label:x.l,q:x.q,hint:x.h,a:""}});
+}
+
+var FORMATS=[{id:"word",label:"Un document"},{id:"excel",label:"Un tableau Excel"},
+ {id:"slides",label:"Des diapositives"},{id:"markdown",label:"Un tableau"},{id:"liste",label:"Une liste"},
+ {id:"texte",label:"Du texte à copier"},{id:"image",label:"Une image, un visuel"},{id:"video",label:"Une vidéo"},
+ {id:"web",label:"Un site, une page web"},{id:"code",label:"Du code"},{id:"libre",label:"Peu importe"}];
+var FORMAT_TXT={
+ excel:"Un tableau prêt à coller dans Excel : une ligne d'en-tête puis les lignes, colonnes séparées par des tabulations. Pour chaque colonne, précise si elle doit être une liste déroulante et donne les valeurs exactes. Ajoute ensuite, en texte, la marche à suivre pour créer ces listes dans Excel.",
+ word:"Un document structuré : un titre, des sections numérotées, des sous-titres, des paragraphes courts.",
+ slides:"Un plan de présentation : un bloc par diapositive, avec un titre, 3 à 5 points et une note pour l'orateur.",
+ texte:"Du texte brut prêt à copier-coller, sans commentaire autour.",
+ markdown:"Un ou plusieurs tableaux en Markdown, colonnes clairement nommées, une ligne par élément.",
+ liste:"Une liste à puces, une idée par puce, sans introduction.",
+ image:"Pour chaque visuel : une description précise et prête à coller dans un générateur d'images — sujet, cadrage, style, couleurs, ambiance, et le texte exact à incruster s'il y en a.",
+ video:"Un script vidéo minuté : pour chaque plan, la durée en secondes, ce qu'on voit à l'écran, et le texte exact de la voix off.",
+ web:"Le code HTML complet d'une page, styles et scripts compris, dans un seul fichier prêt à mettre en ligne.",
+ code:"Du code complet et commenté, dans un seul bloc, suivi des instructions pour l'exécuter.",
+ libre:"Choisis le format le plus lisible pour ce besoin et dis-moi en une ligne pourquoi."};
+var DETAILS=[{id:"synthetique",label:"Synthétique"},{id:"equilibre",label:"Équilibré"},{id:"detaille",label:"Très détaillé"}];
+var DETAIL_TXT={synthetique:"synthétique — l'essentiel, pas de remplissage",
+ equilibre:"équilibré — utilisable directement, sans longueurs",
+ detaille:"très détaillé — explique chaque choix et guide pas à pas, en supposant que je débute"};
+
+var st={actions:[],actionAutre:"",objets:[],objetAutre:"",domaines:[],domaineAutre:"",besoin:"",formats:[],detail:"equilibre"};
+var qa=[], cur=0, round=0, r2start=-1, pick=1, original="", ai=null, ctl=null;
+
+function labelsOf(list,ids,libre){
+  var out=[];
+  ids.forEach(function(id){
+    if(id==="autre"){ if(libre&&libre.trim()) out.push(libre.trim()); return }
+    for(var i=0;i<list.length;i++) if(list[i].id===id){ out.push(list[i].label); return }
+  });
+  return out;
+}
+function join(a){ if(!a.length) return ""; if(a.length===1) return a[0]; return a.slice(0,-1).join(", ")+" et "+a[a.length-1]; }
+function low(t){return t?t.charAt(0).toLowerCase()+t.slice(1):""}
+function objList(){
+  var seen={}, out=[], autre=null;
+  (st.actions.length?st.actions:["autre"]).forEach(function(a){
+    (OBJETS[a]||OBJETS.autre).forEach(function(o){
+      if(seen[o.id]) return; seen[o.id]=1;
+      if(o.id==="autre"){ autre=o; return }
+      out.push(o);
+    });
+  });
+  out.push(autre||{id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"});
+  return out;
+}
+function roleText(){
+  var rs=st.domaines.map(function(d){return ROLES[d]}).filter(Boolean);
+  if(!rs.length) return "un "+ROLES.autre;
+  if(rs.length===1) return "un "+rs[0];
+  return "à la fois un "+rs.join(", et un ");
+}
+
+/* --- micro --- */
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null;
+if(!SR) document.documentElement.classList.add("nomic");
+function micLabel(b,t){ var s=b.querySelector("span"); if(s) s.textContent=t }
+function micOff(b){ rec=null; if(b){ b.classList.remove("rec"); micLabel(b,"Parler") } }
+function dictate(ta,b){
+  if(rec){ try{rec.stop()}catch(e){} micOff(b); return }
+  var r; try{ r=new SR() }catch(e){ return }
+  r.lang="fr-FR"; r.continuous=true; r.interimResults=true;
+  var base=ta.value?ta.value.replace(/\s+$/,"")+" ":"", fin="";
+  r.onresult=function(e){
+    var itm="";
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      var x=e.results[i][0].transcript;
+      if(e.results[i].isFinal) fin+=x+" "; else itm+=x;
+    }
+    ta.value=base+fin+itm; grow(ta);
+  };
+  r.onerror=function(e){ micOff(b);
+    if(e.error==="not-allowed"||e.error==="service-not-allowed") document.documentElement.classList.add("nomic") };
+  r.onend=function(){ micOff(b) };
+  rec=r; b.classList.add("rec"); micLabel(b,"J'écoute — arrêter");
+  try{ r.start() }catch(e){ micOff(b) }
+}
+function grow(ta){ ta.style.height="auto"; ta.style.height=Math.max(ta.scrollHeight,64)+"px" }
+[["pk-txt","pk-mic"],["nd-txt","nd-mic"],["as-txt","as-mic"]].forEach(function(p){
+  var ta=$(p[0]), b=$(p[1]);
+  b.onclick=function(){ dictate(ta,b) };
+  ta.addEventListener("input",function(){grow(ta)});
+});
+
+/* --- écrans --- */
+var SCR=["sc-pick","sc-need","sc-ask","sc-wait","sc-fmt","sc-out"];
+function show(id,p){
+  SCR.forEach(function(s){ $(s).hidden=(s!==id) });
+  document.body.setAttribute("data-wide", id==="sc-out"?"1":"0");
+  $("prog").style.width=Math.round(p*100)+"%";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderPick(n){
+  pick=n;
+  var cfg = n===1 ? {eye:"Étape 1 sur 4 · L'intention", ask:"Qu'est-ce que vous voulez faire ?",
+        guide:"Cochez un verbe — ou plusieurs, si votre projet en réunit plusieurs. Cliquez sur Continuer quand c'est fait.",
+        list:ACTIONS, key:"actions", other:"actionAutre", p:.07}
+   : n===2 ? {eye:"Étape 2 sur 4 · L'objet", ask:"Pour obtenir quoi, exactement ?",
+        guide:"Cochez tout ce que vous voulez obtenir au bout du compte. Plusieurs réponses sont possibles.",
+        list:objList(), key:"objets", other:"objetAutre", p:.17}
+   : {eye:"Étape 3 sur 4 · Le métier", ask:"Dans quel domaine ?",
+        guide:"Cochez tous les métiers concernés. C'est ce qui donnera à l'IA le bon vocabulaire.",
+        list:DOMAINES, key:"domaines", other:"domaineAutre", p:.27};
+
+  $("pk-eye").textContent=cfg.eye; $("pk-ask").textContent=cfg.ask; $("pk-guide").textContent=cfg.guide;
+  $("pk-back").hidden=(n===1); $("demo").hidden=(n!==1); $("pk-err").hidden=true;
+  var other=$("pk-other"), ta=$("pk-txt");
+  ta.value=st[cfg.other]||"";
+  function sync(){ other.hidden = st[cfg.key].indexOf("autre")<0; if(!other.hidden) grow(ta) }
+  sync();
+
+  var ul=$("pk-list"); ul.textContent="";
+  cfg.list.forEach(function(o){
+    var li=document.createElement("li");
+    var b=document.createElement("button"); b.type="button"; b.className="row";
+    b.setAttribute("aria-pressed", st[cfg.key].indexOf(o.id)>=0?"true":"false");
+    var m=document.createElement("span"); m.className="mark";
+    var t=document.createElement("span"); t.className="t"; t.textContent=o.label;
+    var d=document.createElement("span"); d.className="d"; d.textContent=o.desc;
+    b.appendChild(m); b.appendChild(t); b.appendChild(d);
+    b.onclick=function(){
+      var arr=st[cfg.key], i=arr.indexOf(o.id);
+      if(i>=0) arr.splice(i,1); else arr.push(o.id);
+      b.setAttribute("aria-pressed", i>=0?"false":"true");
+      $("pk-err").hidden=true; sync();
+      if(o.id==="autre"&&i<0){ ta.focus(); other.scrollIntoView({behavior:"smooth",block:"center"}) }
+    };
+    li.appendChild(b); ul.appendChild(li);
+  });
+  $("pk-go").onclick=function(){
+    if(!st[cfg.key].length){ $("pk-err").textContent="Cochez au moins une réponse pour continuer."; $("pk-err").hidden=false; return }
+    if(st[cfg.key].indexOf("autre")>=0 && !ta.value.trim()){
+      $("pk-err").textContent="Précisez ce que vous entendez par « Autre chose », ou décochez-le.";
+      $("pk-err").hidden=false; ta.focus(); return }
+    st[cfg.other]=ta.value.trim();
+    if(n===2){ st.objets=st.objets.filter(function(id){ return objList().some(function(o){return o.id===id}) }) }
+    if(n<3) renderPick(n+1); else openNeed();
+  };
+  show("sc-pick",cfg.p);
+}
+$("pk-back").onclick=function(){ renderPick(pick-1) };
+$("home").onclick=function(){ reset() };
+
+function openNeed(){
+  $("nd-eye").textContent="Étape 4 sur 4 · Votre situation";
+  $("nd-guide").textContent="Vous voulez "+low(join(labelsOf(ACTIONS,st.actions,st.actionAutre)))+
+    ". Pour obtenir : "+join(labelsOf(objList(),st.objets,st.objetAutre))+
+    ". Domaine : "+join(labelsOf(DOMAINES,st.domaines,st.domaineAutre))+
+    ". Racontez maintenant, avec vos mots, même en désordre — les questions qui suivent seront écrites à partir de ce que vous dites ici.";
+  $("nd-txt").value=st.besoin; grow($("nd-txt")); $("nd-err").hidden=true;
+  show("sc-need",.38);
+}
+$("nd-back").onclick=function(){ renderPick(3) };
+$("nd-go").onclick=function(){
+  var v=$("nd-txt").value.trim();
+  if(v.length<40){ $("nd-err").hidden=false; $("nd-txt").focus(); return }
+  st.besoin=v; qa=[]; cur=0; round=0; r2start=-1; startRound();
+};
+
+/* --- détecteur de trous : ce que la personne n'a PAS dit --- */
+var PROBES=[
+ {l:"Cas concret",t:function(b){return b.length<180},
+  q:"Votre description reste générale. Racontez-moi un cas réel, une fois précise où ça s'est mal passé.",h:"C'est le détail vrai qui fait la différence."},
+ {l:"Destinataires",t:function(b){return !/(client|équipe|collabor|collègue|direction|patron|public|utilisateur|usager|lecteur|élève|étudiant|membre|salarié|agent|partenaire|employé|manager|responsable|destinataire|bénéficiaire|apprenant|participant|prospect|abonné|adhérent)/i.test(b)},
+  q:"Vous n'avez pas dit qui, à part vous, va lire ou utiliser ce résultat. Qui sont ces personnes ?",h:"Leur métier, leur niveau, ce qu'elles savent déjà."},
+ {l:"Volumes",t:function(b){return !/\d/.test(b)},
+  q:"Vous n'avez donné aucun chiffre. Combien exactement : combien de personnes, de lignes, de pages, de fois par mois ?",h:"Un ordre de grandeur suffit."},
+ {l:"Délai et rythme",t:function(b){return !/(délai|date|avant|échéance|semaine|mois|jour|urgent|deadline|chaque|tous les|annuel|trimestre|lundi|vendredi)/i.test(b)},
+  q:"Aucune échéance dans votre description. Pour quand, et est-ce que ça se répète ?",h:""},
+ {l:"Et après",t:function(b){return !/(ensuite|après|puis |une fois|par la suite|renvoi|retour|transmet|envoie|remonte)/i.test(b)},
+  q:"Une fois le résultat entre vos mains, qu'est-ce qui se passe concrètement ?",h:"Qui le reçoit, qui en fait quoi."},
+ {l:"À éviter",t:function(b){return !/(sauf|sans |ne pas|pas de |interdit|éviter|jamais|surtout pas)/i.test(b)},
+  q:"Vous avez dit ce que vous voulez, pas ce que vous refusez. Qu'est-ce qui ne doit surtout PAS s'y trouver ?",h:""},
+ {l:"Outils en place",t:function(b){return !/(excel|word|outlook|google|drive|notion|whatsapp|papier|logiciel|fichier|mail|sheet|pdf|powerpoint|canva)/i.test(b)},
+  q:"Avec quels outils travaillez-vous aujourd'hui sur ce sujet ?",h:"Excel, Outlook, Google, papier, autre chose."}
+];
+function bank(){
+  var b=st.besoin||"";
+  var gaps=[];
+  PROBES.forEach(function(p){ if(gaps.length<3 && p.t(b)) gaps.push({l:p.l,q:p.q,h:p.h}) });
+  var pool=(Q_DOM[st.domaines[0]]||Q_DOM.autre).slice(0,3).concat(Q_FAM[FAM[st.objets[0]]||"defaut"]||Q_FAM.defaut);
+  var need=Math.max(6-gaps.length-1,0);
+  return gaps.concat(pool.slice(0,need),[Q_FIN]).map(function(x){return {label:x.l,q:x.q,hint:x.h,a:""}});
+}
+
+/* --- interrogatoire --- */
+function waiting(t){ $("wt-txt").textContent=t; show("sc-wait",.45) }
+function clean(arr){
+  if(!Array.isArray(arr)) return [];
+  return arr.filter(function(o){return o&&o.q}).slice(0,7).map(function(o){
+    return {label:String(o.label||"Précision"), q:String(o.q), hint:String(o.hint||""), a:""};
+  });
+}
+function startRound(){
+  round=1;
+  if(!ai){ qa=bank(); cur=0; renderAsk(); return }
+  waiting("Un instant. Je relis ce que vous venez de dire, et je cherche ce qui manque.");
+  ai.json("Une personne veut "+low(join(labelsOf(ACTIONS,st.actions,st.actionAutre)))+
+    ". Résultat attendu : "+join(labelsOf(objList(),st.objets,st.objetAutre))+
+    ". Domaine : "+join(labelsOf(DOMAINES,st.domaines,st.domaineAutre))+
+    ".\n\nVoici ce qu'elle en dit, avec ses mots :\n\"\"\"\n"+st.besoin+"\n\"\"\"\n\n"+
+    "Tu es un expert reconnu de ce domaine, et c'est TOI qui devras produire ce résultat. Écris 6 questions à lui poser.\n\n"+
+    "Ton travail n'est pas de lui faire répéter ce qu'elle a déjà dit : c'est de trouver les trous. Pour chaque question, demande-toi : « qu'est-ce qui, si je l'ignore, me fera produire un résultat à côté ? »\n\n"+
+    "Cherche en priorité :\n"+
+    "- ce qu'elle tient pour évident et n'a donc pas écrit (qui remplit, qui lit, qui décide, qui valide) ;\n"+
+    "- les quantités, volumes, délais et fréquences absents de son texte ;\n"+
+    "- les cas particuliers et les exceptions que son texte suppose sans les nommer ;\n"+
+    "- les contraintes propres à ce métier qu'elle n'a pas mentionnées mais qui vont s'imposer ;\n"+
+    "- ce qui arrive au résultat après : qui le reçoit, et qu'en fait-il.\n\n"+
+    "Règles strictes :\n"+
+    "- Chaque question doit s'accrocher à un mot ou à une idée de SON texte, pour qu'elle sente que tu l'as lue. Cite-la quand c'est possible.\n"+
+    "- Ne repose jamais une question dont la réponse est déjà dans son texte.\n"+
+    "- Interdit : les questions passe-partout du type « quel est votre objectif », « quel ton souhaitez-vous », « avez-vous des contraintes », « quel est votre public ».\n"+
+    "- Une seule idée par question, 25 mots maximum, vouvoiement, en français simple.\n\n"+
+    "Réponds uniquement avec un tableau JSON de 6 objets :\n"+
+    "[{\"q\":\"la question, avec son point d'interrogation\",\"label\":\"2 ou 3 mots qui nomment l'information, sans point d'interrogation\",\"hint\":\"une phrase très courte qui aide à répondre\"}]")
+   .then(function(a){ qa=clean(a); if(qa.length<3) throw 0; cur=0; renderAsk() })
+   .catch(function(){ qa=bank(); cur=0; renderAsk() });
+}
+function vague(){
+  var out=[];
+  qa.forEach(function(x){
+    if(x.a && x.a.length<45 && out.length<2)
+      out.push({label:x.label, q:"Vous avez répondu : « "+x.a+" ». C'est court. Donnez-moi un exemple concret, un chiffre ou un cas précis.", hint:"", a:""});
+  });
+  return out;
+}
+function followups(){
+  if(!ai){ var m=vague(); if(!m.length){ openFmt(); return }
+    r2start=qa.length; cur=qa.length; qa=qa.concat(m); round=2; renderAsk(); return }
+  round=2;
+  waiting("Je relis vos réponses. Il reste peut-être une zone d'ombre.");
+  var trs=qa.map(function(x){return "Q : "+x.q+"\nR : "+(x.a||"(pas de réponse)")}).join("\n\n");
+  ai.json("BESOIN INITIAL :\n"+st.besoin+"\n\nINTERROGATOIRE DÉJÀ MENÉ :\n"+trs+
+    "\n\nTu es un expert de ce domaine. Repère ce qui reste flou, contradictoire, non chiffré ou non répondu, et qui t'empêcherait encore de produire un résultat juste.\nÉcris au maximum 3 questions de relance. Chaque relance doit citer ce que la personne a dit, puis demander la précision qui manque.\nS'il n'y a rien de sérieux à creuser, réponds exactement : []\nVouvoiement, en français, 25 mots maximum par question.\n\nMême format JSON :\n[{\"q\":\"…\",\"label\":\"…\",\"hint\":\"…\"}]")
+   .then(function(a){
+     var more=clean(a).slice(0,3);
+     if(!more.length){ openFmt(); return }
+     r2start=qa.length; cur=qa.length; qa=qa.concat(more); renderAsk();
+   })
+   .catch(function(){ var m=vague(); if(!m.length){ openFmt(); return }
+     r2start=qa.length; cur=qa.length; qa=qa.concat(m); renderAsk() });
+}
+function renderAsk(){
+  var q=qa[cur];
+  $("as-eye").textContent=((r2start>=0&&cur>=r2start)?"Relance":"Interrogatoire")+" · Question "+(cur+1)+" sur "+qa.length;
+  $("as-ask").textContent=q.q;
+  $("as-guide").textContent=q.hint||""; $("as-guide").hidden=!q.hint;
+  $("as-txt").value=q.a||""; grow($("as-txt"));
+  $("as-go").textContent=(cur===qa.length-1)?"Terminer":"Suivant";
+  show("sc-ask",.45+.4*(cur/(qa.length+1)));
+}
+function advance(){
+  qa[cur].a=$("as-txt").value.trim();
+  if(cur<qa.length-1){ cur++; renderAsk(); return }
+  if(round===1) followups(); else openFmt();
+}
+$("as-go").onclick=advance;
+$("as-skip").onclick=function(){ $("as-txt").value=""; advance() };
+$("as-back").onclick=function(){
+  qa[cur].a=$("as-txt").value.trim();
+  if(cur>0){ cur--; renderAsk() } else openNeed();
+};
+
+/* --- orthographe et logique : le nettoyage qui marche sans IA --- */
+var TICS=[/\bon va dire ça comme ça\b/gi,/\bet tout le tralala\b/gi,/\bpatati patata\b/gi,
+ /\bet tout ça\b/gi,/\bvoilà quoi\b/gi,/\bon va dire\b/gi,/\btu vois\b/gi,/\bvous voyez\b/gi,
+ /\beuh\b/gi,/\bheu\b/gi,/\bhein\b/gi,/\bbah\b/gi,/\bdu coup quoi\b/gi];
+var ELIS=[[/\bc est\b/gi,"c'est"],[/\bj ai\b/gi,"j'ai"],[/\bn est\b/gi,"n'est"],[/\bn ai\b/gi,"n'ai"],
+ [/\bd un\b/gi,"d'un"],[/\bd une\b/gi,"d'une"],[/\bqu il\b/gi,"qu'il"],[/\bqu elle\b/gi,"qu'elle"],
+ [/\bqu on\b/gi,"qu'on"],[/\bs il\b/gi,"s'il"],[/\bl on\b/gi,"l'on"],[/\bj aimerais\b/gi,"j'aimerais"],
+ [/\bil y a pas\b/gi,"il n'y a pas"],[/\bça s est\b/gi,"ça s'est"]];
+function polish(x){
+  if(!x) return "";
+  var s=String(x).replace(/\s+/g," ").trim();
+  TICS.forEach(function(r){ s=s.replace(r," ") });
+  ELIS.forEach(function(e){ s=s.replace(e[0],e[1]) });
+  s=s.replace(/\s+/g," ");
+  s=s.replace(/\b([A-Za-zÀ-ÿ'’-]{2,})(\s+\1\b)+/gi,function(m,w){ return /^(nous|vous|très|tres|bien)$/i.test(w)?m:w });
+  if(s.length<4000) s=s.replace(/\b([A-Za-zÀ-ÿ'’-]+(?:\s+[A-Za-zÀ-ÿ'’-]+){1,4})(\s+\1\b)+/gi,"$1");
+  s=s.replace(/\s+([,.])/g,"$1").replace(/([,.])([A-Za-zÀ-ÿ])/g,"$1 $2");
+  s=s.replace(/\s*([;:!?])/g," $1").replace(/([;:!?])([A-Za-zÀ-ÿ])/g,"$1 $2");
+  s=s.replace(/ {2,}/g," ").trim();
+  s=s.replace(/(^|[.!?]\s+)([a-zà-ÿ])/g,function(m,p,c){ return p+c.toUpperCase() });
+  if(s && !/[.!?…]$/.test(s)) s+=".";
+  return s;
+}
+function aiPolish(){
+  var items=[st.besoin].concat(qa.filter(function(x){return x.a}).map(function(x){return x.a}));
+  return ai.json("Voici des phrases dictées à la voix par une personne, dans l'ordre. La reconnaissance vocale a pu se tromper de mot.\n\n"+
+   "Pour chacune :\n"+
+   "- corrige l'orthographe, la grammaire, les accords et la ponctuation ;\n"+
+   "- quand un mot est visiblement mal transcrit, remplace-le par celui que le contexte impose (par exemple « ton » là où le sens veut « bon ») ;\n"+
+   "- supprime les tics de langage, les hésitations et les répétitions ;\n"+
+   "- remets de la logique dans l'enchaînement, pour que ça se lise comme une phrase écrite et non dictée.\n\n"+
+   "Interdits absolus : changer le sens, ajouter une information absente, retirer un détail, réécrire dans un autre style. Garde ses mots quand ils sont corrects.\n\n"+
+   "Réponds uniquement avec un tableau JSON de "+items.length+" chaînes, dans le même ordre, rien d'autre.\n\n"+
+   JSON.stringify(items))
+   .then(function(r){
+     if(!Array.isArray(r)||r.length!==items.length) return;
+     st.besoin=String(r[0]); var k=1;
+     qa.forEach(function(x){ if(x.a) x.a=String(r[k++]) });
+   }).catch(function(){});
+}
+
+/* --- format --- */
+function pills(host,list,key){
+  host.textContent="";
+  list.forEach(function(o){
+    var b=document.createElement("button"); b.type="button"; b.className="pill"; b.textContent=o.label;
+    b.setAttribute("aria-pressed", st[key]===o.id?"true":"false");
+    b.onclick=function(){ st[key]=o.id;
+      Array.prototype.forEach.call(host.querySelectorAll(".pill"),function(x){x.setAttribute("aria-pressed","false")});
+      b.setAttribute("aria-pressed","true") };
+    host.appendChild(b);
+  });
+}
+function pillsMulti(host,list,key,exclu){
+  host.textContent="";
+  function draw(){ Array.prototype.forEach.call(host.querySelectorAll(".pill"),function(x){
+    x.setAttribute("aria-pressed", st[key].indexOf(x.getAttribute("data-id"))>=0?"true":"false") }) }
+  list.forEach(function(o){
+    var b=document.createElement("button"); b.type="button"; b.className="pill"; b.textContent=o.label;
+    b.setAttribute("data-id",o.id); b.setAttribute("aria-pressed","false");
+    b.onclick=function(){
+      var i=st[key].indexOf(o.id);
+      if(i>=0) st[key].splice(i,1);
+      else if(o.id===exclu){ st[key].length=0; st[key].push(o.id) }
+      else { st[key].push(o.id); var e=st[key].indexOf(exclu); if(e>=0) st[key].splice(e,1) }
+      draw();
+    };
+    host.appendChild(b);
+  });
+  draw();
+}
+function openFmt(){ pillsMulti($("fmt"),FORMATS,"formats","libre"); pills($("det"),DETAILS,"detail"); show("sc-fmt",.9) }
+$("ft-back").onclick=function(){ if(qa.length){ cur=qa.length-1; renderAsk() } else openNeed() };
+$("ft-go").onclick=function(){
+  st.besoin=polish(st.besoin);
+  qa.forEach(function(x){ if(x.a) x.a=polish(x.a) });
+  if(ai){ waiting("Je relis votre texte : orthographe, grammaire, répétitions."); aiPolish().then(finish) }
+  else finish();
+};
+function finish(){
+  original=build(); $("out").textContent=original;
+  $("revert").hidden=true; $("ot-err").hidden=true; $("toast").textContent="";
+  var n=qa.filter(function(x){return x.a}).length;
+  $("ot-guide").textContent="Construit à partir de "+n+" réponse"+(n>1?"s":"")+" que personne d'autre n'aurait pu donner à votre place. Le texte a été relu et corrigé.";
+  show("sc-out",1);
+}
+
+function build(){
+  var p=[];
+  p.push("# RÔLE");
+  p.push("Tu es "+roleText()+". Tu travailles avec méthode et tu vas droit au concret.");
+  p.push("");
+  p.push("# CONTEXTE");
+  p.push("Domaine : "+join(labelsOf(DOMAINES,st.domaines,st.domaineAutre))+".");
+  p.push("Ce que je cherche à obtenir, avec mes mots : "+st.besoin);
+  var det=qa.filter(function(x){return x.a});
+  if(det.length){ p.push(""); p.push("# CE QUE JE T'AI PRÉCISÉ");
+    det.forEach(function(x){ p.push("- "+x.label+" : "+x.a) }) }
+  p.push("");
+  p.push("# TÂCHE");
+  p.push("Ce que je te demande : "+low(join(labelsOf(ACTIONS,st.actions,st.actionAutre)))+".");
+  p.push("Le résultat attendu : "+join(labelsOf(objList(),st.objets,st.objetAutre))+".");
+  p.push("");
+  p.push("# CONTRAINTES");
+  p.push("- Réponds en français.");
+  p.push("- Niveau de détail : "+DETAIL_TXT[st.detail]+".");
+  p.push("- Produis un seul livrable complet, pas plusieurs variantes à comparer.");
+  p.push("- N'invente aucune information que je ne t'ai pas donnée : si tu dois supposer quelque chose, dis-le.");
+  p.push("- Soigne la langue : orthographe, grammaire, vocabulaire précis, aucune répétition de mot d'une phrase à l'autre.");
+  p.push("");
+  p.push("# FORMAT DE SORTIE");
+  var fs=st.formats.length?st.formats:["libre"];
+  if(fs.length===1) p.push(FORMAT_TXT[fs[0]]);
+  else{
+    p.push("Je veux plusieurs choses à la fois. Regroupe-les dans un seul livrable, chaque partie clairement titrée et séparée :");
+    fs.forEach(function(f,i){ p.push((i+1)+". "+FORMAT_TXT[f]) });
+  }
+  p.push("");
+  p.push("# MÉTHODE");
+  p.push("1. Si une information vraiment essentielle te manque encore, pose-moi au maximum 3 questions avant de produire quoi que ce soit.");
+  p.push("2. Sinon, produis directement le livrable.");
+  p.push("3. Termine par la liste des hypothèses que tu as prises à ma place, pour que je puisse les corriger.");
+  return p.join("\n");
+}
+
+/* --- IA --- */
+if(window.claude&&window.claude.use){
+  window.claude.use("sample").then(function(m){ ai=m||null; if(ai) $("refine").hidden=false }).catch(function(){});
+}
+function aiMsg(c){
+  if(c==="not_granted") return "L'affinage n'est pas autorisé sur cette page.";
+  if(c==="rate_limited") return "Trop de demandes d'affilée. Réessayez dans une minute.";
+  if(c==="cancelled") return "";
+  return "L'affinage n'a pas abouti. Votre prompt reste utilisable tel quel.";
+}
+$("refine").onclick=function(){
+  if(!ai) return;
+  var b=$("refine"); ctl=new AbortController();
+  b.disabled=true; $("stop").hidden=false; $("ot-err").hidden=true; $("out").textContent="…";
+  ai("Voici un prompt destiné à une IA. Resserre-le sans changer l'intention et sans inventer la moindre information absente.\nSupprime les formulations vagues, ajoute les précisions que le métier concerné implique évidemment, garde les sections et le français.\nRéponds uniquement avec le prompt amélioré, sans introduction ni commentaire.\n\n---\n"+original,
+    {signal:ctl.signal,onText:function(e){ $("out").textContent=e.text }})
+   .then(function(){ $("revert").hidden=false })
+   .catch(function(e){ $("out").textContent=(e&&e.text)||original;
+     var m=aiMsg(e&&e.code); if(m){ $("ot-err").textContent=m; $("ot-err").hidden=false } })
+   .then(function(){ b.disabled=false; $("stop").hidden=true });
+};
+$("stop").onclick=function(){ if(ctl) ctl.abort() };
+$("revert").onclick=function(){ $("out").textContent=original; $("revert").hidden=true };
+
+$("copy").onclick=function(){
+  var t=$("out").textContent;
+  var ok=function(){ $("toast").textContent="Copié."; setTimeout(function(){$("toast").textContent=""},2600) };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok,fb); else fb();
+  function fb(){
+    var ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); ok() }catch(e){ $("toast").textContent="Sélectionnez le texte et copiez-le." }
+    ta.remove();
+  }
+};
+$("ot-back").onclick=function(){ openFmt() };
+$("restart").onclick=reset;
+function reset(){
+  st={actions:[],actionAutre:"",objets:[],objetAutre:"",domaines:[],domaineAutre:"",besoin:"",formats:[],detail:"equilibre"};
+  qa=[]; cur=0; round=0; r2start=-1; $("nd-txt").value=""; $("as-txt").value=""; renderPick(1);
+}
+
+$("demo").onclick=function(){
+  st.actions=["creer"]; st.objets=["tableau"]; st.domaines=["rh"]; st.formats=["excel"]; st.detail="detaille";
+  st.besoin="Un seul tableau consolidé que chaque collaborateur en centre remplit pour recenser les anomalies et insuffisances de son pays sur la paie et l'administration, puis renvoie au siège pour analyse.";
+  qa=[
+   {label:"Anomalies fréquentes",q:"",hint:"",a:"Saisie des absences et congés mal faite, saisies volontaires comme les prêts mal maîtrisées, difficulté à lire un bulletin et à comprendre une régularisation."},
+   {label:"Répartition des saisies",q:"",hint:"",a:"Le centre saisit, mais dès qu'il faut analyser un bulletin ou une régularisation, ça remonte au siège. Jusqu'à une heure par dossier."},
+   {label:"Volumes",q:"",hint:"",a:"Une douzaine de centres, une trentaine de lignes par mois au total."},
+   {label:"Une ligne = quoi",q:"",hint:"",a:"Une anomalie constatée, pour pouvoir filtrer et compter ensuite."},
+   {label:"Listes déroulantes",q:"",hint:"",a:"Tout doit être en liste fermée sauf la description : pays, centre, domaine paie ou administration, type d'anomalie, fréquence, traité en centre ou remonté, statut."},
+   {label:"Et après",q:"",hint:"",a:"Le siège consolide les retours, compte par centre et par type, et en tire un plan de formation chiffré."},
+   {label:"Échecs passés",q:"",hint:"",a:"On s'est retrouvé avec plusieurs tableaux séparés au lieu d'un seul, et des réponses en texte libre inexploitables."}
+  ];
+  pillsMulti($("fmt"),FORMATS,"formats","libre"); pills($("det"),DETAILS,"detail");
+  original=build(); $("out").textContent=original;
+  $("revert").hidden=true; $("ot-err").hidden=true; $("toast").textContent="";
+  $("ot-guide").textContent="Construit à partir de 7 réponses que personne d'autre n'aurait pu donner à votre place.";
+  show("sc-out",1);
+};
+
+renderPick(1);
+})();
+
+</script>
+
+</body>
+</html>
