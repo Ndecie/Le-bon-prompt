@@ -1,0 +1,1634 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Un interrogatoire en quatre temps qui transforme une idee floue en prompt IA precis.">
+<style>html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Le Bon Prompt</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500&family=Jost:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#FFFFFF; --ink:#000000; --ink2:#2B2B2B; --ink3:#424242;
+  --rule:#000000; --hair:#C9C9C9; --alert:#8E1111;
+  --serif:"Bodoni Moda",Didot,"Times New Roman",serif;
+  --sans:"Jost",Futura,"Century Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:18px; line-height:1.65;
+  font-weight:400; padding:0 24px; padding-block:0 110px; -webkit-font-smoothing:antialiased}
+#prog{position:fixed; top:0; left:0; height:3px; background:var(--ink); width:0; z-index:9; transition:width .5s cubic-bezier(.22,.7,.3,1)}
+@media (prefers-reduced-motion:reduce){#prog{transition:none}}
+.shell{max-width:800px; margin:0 auto; transition:max-width .4s ease}
+body[data-wide="1"] .shell{max-width:960px}
+
+.mast{text-align:center; padding-block:40px 0}
+.word{font-family:var(--serif); font-weight:700; font-size:clamp(21px,5.4vw,32px); letter-spacing:.19em;
+  margin:0; line-height:1; text-transform:uppercase; cursor:pointer; background:none; border:0; color:var(--ink)}
+.mast hr{border:0; border-top:2px solid var(--rule); margin:22px 0 0}
+.mast .thin{border-top:1px solid var(--rule); margin-top:4px}
+
+.stage{padding-block:58px 0}
+.eyebrow{font-size:12.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink2); margin:0 0 20px; font-weight:600}
+.ask{font-family:var(--serif); font-weight:600; font-size:clamp(32px,5.4vw,54px); line-height:1.1; letter-spacing:-.005em;
+  margin:0 0 16px; text-wrap:balance}
+.guide{font-size:17.5px; color:var(--ink3); margin:0 0 32px; max-width:56ch; font-weight:400; line-height:1.6}
+
+ul.list{list-style:none; margin:0; padding:0; border-top:2px solid var(--rule)}
+ul.list li{border-bottom:1px solid var(--hair)}
+ul.list li:last-child{border-bottom:2px solid var(--rule)}
+.row{display:flex; width:100%; text-align:left; align-items:baseline; gap:20px; cursor:pointer;
+  background:none; border:0; font-family:var(--sans); color:var(--ink);
+  padding:21px 0; transition:background .14s, padding .14s, color .14s}
+.row .t{font-size:21px; font-weight:500; flex:0 0 33%; line-height:1.3}
+.row .d{font-size:16px; color:var(--ink3); font-weight:400; flex:1 1 auto; line-height:1.45}
+.mark{flex:0 0 auto; width:16px; height:16px; border:2px solid currentColor; align-self:center}
+.row[aria-pressed="true"] .mark{background:currentColor; box-shadow:inset 0 0 0 3px var(--paper)}
+.row:hover[aria-pressed="true"] .mark,.row:focus-visible[aria-pressed="true"] .mark{box-shadow:inset 0 0 0 3px var(--ink)}
+.row:hover,.row:focus-visible{background:var(--ink); color:var(--paper); padding-inline:18px; outline:none}
+.row:hover .d,.row:focus-visible .d{color:#D2D2D2}
+.row[aria-pressed="true"] .t{font-weight:600}
+@media (max-width:660px){ .row{flex-direction:column; gap:5px; align-items:stretch; padding:19px 0}
+   .row .d{flex:none} .row .t{flex:none; font-size:20px} }
+
+/* vignettes, palettes, specimens */
+.th{flex:0 0 auto; position:relative; width:92px; height:60px; overflow:hidden; background:#fff;
+  border:1px solid var(--hair); align-self:center}
+.th i{position:absolute; display:block}
+.th s{position:absolute; display:block; line-height:1; text-decoration:none}
+.row:hover .th,.row:focus-visible .th{border-color:#666}
+.row.rich .t{flex:0 0 27%}
+.row.cli .t{flex:1 1 auto}
+.row.cli .th{width:92px}
+.pal{display:flex; flex-wrap:wrap; gap:7px 14px; margin-top:9px}
+.pal b{display:inline-flex; align-items:center; gap:7px; font-weight:400; font-size:12.5px; white-space:nowrap}
+.pal b em{width:17px; height:17px; border-radius:50%; border:1px solid rgba(0,0,0,.22); font-style:normal; flex:0 0 auto}
+.row:hover .pal b em,.row:focus-visible .pal b em{border-color:rgba(255,255,255,.35)}
+.spec{font-size:clamp(22px,4vw,30px); line-height:1.3; letter-spacing:-.01em; display:block}
+.small{font-size:12.5px; color:var(--ink3); margin-top:4px; display:block}
+.row:hover .small,.row:focus-visible .small{color:#BEBEBE}
+.grp{font-size:12.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink2); font-weight:600; margin:34px 0 12px}
+.grp.first{margin-top:0}
+.lim{font-size:15px; color:var(--alert); margin-top:16px; min-height:1px}
+.count{font-size:13px; color:var(--ink3); margin-top:10px}
+textarea{width:100%; font-family:var(--sans); font-weight:400; font-size:clamp(19px,2.4vw,22px); line-height:1.55;
+  color:var(--ink); background:transparent; border:0; border-bottom:2px solid var(--rule);
+  padding:0 0 14px; resize:none; overflow:hidden}
+textarea::placeholder{color:#8A8A8A}
+textarea:focus{outline:none; border-bottom-width:3px; padding-bottom:13px}
+.tools{display:flex; align-items:center; gap:16px; margin-top:18px; flex-wrap:wrap}
+.mic{display:inline-flex; align-items:center; gap:10px; font-family:var(--sans); font-size:13px; letter-spacing:.16em;
+  text-transform:uppercase; font-weight:600; cursor:pointer; background:none; color:var(--ink);
+  border:2px solid var(--rule); padding:11px 20px}
+.mic:hover{background:var(--ink); color:var(--paper)}
+.mic.rec{background:var(--ink); color:var(--paper)}
+.mic.rec svg{animation:pulse 1.1s infinite}
+@keyframes pulse{50%{opacity:.2}}
+@media (prefers-reduced-motion:reduce){.mic.rec svg{animation:none}}
+html.nomic .mic,html.nomic .micok{display:none}
+html:not(.nomic) .micbad{display:none}
+.note{font-size:14.5px; color:var(--ink3); font-weight:400; max-width:46ch; line-height:1.45}
+.alert{color:var(--alert); font-size:15px; font-weight:500}
+
+.pills{display:flex; flex-wrap:wrap; gap:9px; margin-bottom:36px}
+.pill{font-family:var(--sans); font-size:13px; letter-spacing:.14em; text-transform:uppercase; font-weight:600;
+  cursor:pointer; background:none; color:var(--ink); border:1px solid var(--ink3); padding:12px 18px}
+.pill:hover{border-color:var(--rule); border-width:2px; padding:11px 17px}
+.pill[aria-pressed="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+.sect{font-size:12.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink2); margin:0 0 14px; font-weight:600}
+
+.nav{display:flex; align-items:center; gap:28px; flex-wrap:wrap; margin-top:46px}
+.go{font-family:var(--sans); font-size:14px; letter-spacing:.18em; text-transform:uppercase; font-weight:600;
+  cursor:pointer; background:var(--ink); color:var(--paper); border:2px solid var(--ink); padding:17px 38px}
+.go:hover:not(:disabled){background:var(--paper); color:var(--ink)}
+.txtbtn{font-family:var(--sans); font-size:14px; letter-spacing:.16em; text-transform:uppercase; font-weight:500;
+  cursor:pointer; background:none; border:0; color:var(--ink2); padding:7px 0; border-bottom:2px solid var(--hair)}
+.txtbtn:hover{color:var(--ink); border-color:var(--ink)}
+
+.load{font-family:var(--serif); font-weight:600; font-size:clamp(26px,4.4vw,40px); line-height:1.15; margin:0}
+.bar{height:2px; background:var(--hair); margin-top:36px; overflow:hidden}
+.bar i{display:block; height:2px; width:34%; background:var(--ink); animation:slide 1.5s infinite ease-in-out}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(390%)}}
+@media (prefers-reduced-motion:reduce){.bar i{animation:none; width:100%}}
+
+pre.out[contenteditable="true"]{outline:none}
+pre.out[contenteditable="true"]:focus{background:#FAFAFA; box-shadow:0 0 0 2px var(--ink)}
+.editnote{font-size:14.5px; color:var(--ink3); margin:14px 0 0; max-width:60ch}
+.cta{display:inline-block; font-family:var(--sans); font-size:13px; letter-spacing:.16em; text-transform:uppercase;
+  font-weight:600; color:var(--ink); text-decoration:none; border:2px solid var(--ink); padding:13px 22px}
+.cta:hover{background:var(--ink); color:var(--paper)}
+.ctas{display:flex; flex-wrap:wrap; gap:12px; margin-top:18px}
+.foot a{color:var(--ink3); text-decoration:none; border-bottom:1px solid var(--hair)}
+.foot a:hover{color:var(--ink); border-color:var(--ink)}
+pre.out{font-family:var(--mono); font-size:14.5px; line-height:1.8; white-space:pre-wrap; overflow-wrap:anywhere;
+  border-top:2px solid var(--rule); border-bottom:2px solid var(--rule);
+  padding:32px 0; margin:0; max-height:60vh; overflow:auto; color:var(--ink)}
+.promo{border-top:1px solid var(--hair); margin-top:66px; padding-top:24px}
+.promo p{font-size:16.5px; color:var(--ink3); margin:0 0 14px; max-width:54ch}
+.promo em{font-family:var(--serif); font-style:italic; font-weight:600; color:var(--ink); font-size:18px}
+.promo a{font-size:13px; letter-spacing:.18em; text-transform:uppercase; font-weight:600; color:var(--ink);
+  text-decoration:none; border-bottom:2px solid var(--ink); padding-bottom:4px}
+.foot{border-top:1px solid var(--hair); margin-top:76px; padding-top:20px;
+  font-size:12.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); font-weight:500;
+  display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap}
+:focus-visible{outline:3px solid var(--ink); outline-offset:3px}
+</style>
+
+<div id="prog"></div>
+<div class="shell">
+
+  <div class="mast">
+    <button class="word" id="home" type="button">Le Bon Prompt</button>
+    <hr><hr class="thin">
+  </div>
+
+  <section class="stage" id="sc-pick">
+    <p class="eyebrow" id="pk-eye"></p>
+    <h2 class="ask" id="pk-ask"></h2>
+    <p class="guide" id="pk-guide"></p>
+    <ul class="list" id="pk-list"></ul>
+    <div id="pk-other" hidden style="margin-top:36px">
+      <textarea id="pk-txt" rows="2" placeholder="Écrivez ici, ou parlez…"></textarea>
+      <div class="tools">
+        <button class="mic" type="button" id="pk-mic"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg><span>Parler</span></button>
+        <span class="note micok">Cliquez, puis parlez : ce que vous dites s'écrit tout seul.</span>
+        <span class="note micbad">Le micro n'est pas disponible dans cette fenêtre. Écrivez votre réponse.</span>
+      </div>
+    </div>
+    <p class="alert" id="pk-err" hidden>Cochez au moins une réponse pour continuer.</p>
+    <div class="nav">
+      <button class="go" type="button" id="pk-go">Continuer</button>
+      <button class="txtbtn" type="button" id="pk-back" hidden>Retour</button>
+      <button class="txtbtn" type="button" id="demo">Voir un exemple</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-need" hidden>
+    <p class="eyebrow" id="nd-eye"></p>
+    <h2 class="ask">Racontez-moi.</h2>
+    <p class="guide" id="nd-guide"></p>
+    <textarea id="nd-txt" rows="5" placeholder="Ce que vous voulez obtenir, à quoi ça doit servir, pour qui, avec quoi, dans quel délai… Plus vous en dites, plus les questions qui suivent seront justes."></textarea>
+    <div class="tools">
+      <button class="mic" type="button" id="nd-mic"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg><span>Parler</span></button>
+      <span class="note micok">Cliquez, puis parlez : ce que vous dites s'écrit tout seul.</span>
+      <span class="note micbad">Le micro n'est pas disponible dans cette fenêtre. Écrivez votre réponse.</span>
+    </div>
+    <p class="alert" id="nd-err" hidden>Deux ou trois phrases, au minimum : les questions qui suivent sont écrites à partir de ce que vous dites ici.</p>
+    <div class="nav">
+      <button class="go" type="button" id="nd-go">Continuer</button>
+      <button class="txtbtn" type="button" id="nd-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-ask" hidden>
+    <p class="eyebrow" id="as-eye"></p>
+    <h2 class="ask" id="as-ask"></h2>
+    <p class="guide" id="as-guide"></p>
+    <textarea id="as-txt" rows="3" placeholder="Votre réponse…"></textarea>
+    <div class="tools">
+      <button class="mic" type="button" id="as-mic"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg><span>Parler</span></button>
+      <span class="note micok">Cliquez, puis parlez : ce que vous dites s'écrit tout seul.</span>
+      <span class="note micbad">Le micro n'est pas disponible dans cette fenêtre. Écrivez votre réponse.</span>
+    </div>
+    <div class="nav">
+      <button class="go" type="button" id="as-go">Suivant</button>
+      <button class="txtbtn" type="button" id="as-back">Retour</button>
+      <button class="txtbtn" type="button" id="as-skip">Je ne sais pas</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-wait" hidden>
+    <p class="eyebrow">Interrogatoire</p>
+    <p class="load" id="wt-txt"></p>
+    <div class="bar"><i></i></div>
+  </section>
+
+  <section class="stage" id="sc-ad" hidden>
+    <p class="eyebrow">Direction artistique</p>
+    <h2 class="ask">Voulez-vous choisir une direction artistique ?</h2>
+    <p class="guide">Le style visuel, la typographie et les couleurs de votre projet. Trois écrans, deux minutes. Si vous passez, l'IA choisira à votre place.</p>
+    <ul class="list" id="ad-list"></ul>
+    <div class="nav"><button class="txtbtn" type="button" id="ad-back">Retour</button></div>
+  </section>
+
+  <section class="stage" id="sc-style" hidden>
+    <p class="eyebrow">Direction artistique · 1 sur 3</p>
+    <h2 class="ask">Quel style visuel ?</h2>
+    <p class="guide">Cochez-en autant que vous voulez. Les vignettes sont dessinées dans l'esprit de chaque style.</p>
+    <ul class="list" id="st-list"></ul>
+    <p class="count" id="st-lim"></p>
+    <div class="nav">
+      <button class="go" type="button" id="st-go">Continuer</button>
+      <button class="txtbtn" type="button" id="st-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-typo" hidden>
+    <p class="eyebrow">Direction artistique · 2 sur 3</p>
+    <h2 class="ask">Quelle typographie ?</h2>
+    <p class="guide">Cochez-en autant que vous voulez. Chaque nom est écrit dans une police de sa famille : vous lisez le style en lisant son nom.</p>
+    <ul class="list" id="ty-list"></ul>
+    <p class="count" id="ty-lim"></p>
+    <div class="nav">
+      <button class="go" type="button" id="ty-go">Continuer</button>
+      <button class="txtbtn" type="button" id="ty-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-font" hidden>
+    <p class="eyebrow">Direction artistique · 2 sur 3</p>
+    <h2 class="ask">Une police précise ?</h2>
+    <p class="guide">Chacune dans sa vraie police. Laissez « Peu importe » si vous préférez que l'IA tranche parmi les trois.</p>
+    <div id="fo-blocks"></div>
+    <div class="nav">
+      <button class="go" type="button" id="fo-go">Continuer</button>
+      <button class="txtbtn" type="button" id="fo-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-pal" hidden>
+    <p class="eyebrow">Direction artistique · 3 sur 3</p>
+    <h2 class="ask">Quelle palette de couleurs ?</h2>
+    <p class="guide">Cochez-en autant que vous voulez. Les codes hexadécimaux partiront tels quels dans le prompt.</p>
+    <ul class="list" id="pa-list"></ul>
+    <p class="count" id="pa-lim"></p>
+    <div class="nav">
+      <button class="go" type="button" id="pa-go">Continuer</button>
+      <button class="txtbtn" type="button" id="pa-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-cli" hidden>
+    <p class="eyebrow">Avant-dernière étape</p>
+    <h2 class="ask">Qu'est-ce qui trahirait que c'est l'IA qui a travaillé ?</h2>
+    <p class="guide">Cochez tout ce que vous ne voulez surtout pas voir apparaître. Sans limite. Ce que vous cochez deviendra une liste d'interdictions dans votre prompt ; ce que vous laissez décoché reste permis.</p>
+    <div class="nav" style="margin-top:0; margin-bottom:26px">
+      <button class="txtbtn" type="button" id="cl-all">Tout cocher</button>
+      <button class="txtbtn" type="button" id="cl-none">Tout décocher</button>
+      <span class="count" id="cl-count"></span>
+    </div>
+    <div id="cl-groups"></div>
+    <div class="nav">
+      <button class="go" type="button" id="cl-go">Continuer</button>
+      <button class="txtbtn" type="button" id="cl-back">Retour</button>
+    </div>
+    <p class="small" style="margin-top:26px">Liste inspirée de @buildwithmathias.</p>
+  </section>
+
+  <section class="stage" id="sc-fmt" hidden>
+    <p class="eyebrow">Dernière étape</p>
+    <h2 class="ask">Vous voulez récupérer quoi, exactement ?</h2>
+    <p class="guide">Nommez le fichier que vous voulez au bout du compte, pas ce qu'il contient. C'est cette rubrique qui fera foi dans le prompt : si vous cochez PowerPoint, il réclamera un vrai fichier .pptx, et un script Python pour le fabriquer si l'IA ne sait pas livrer de fichier.</p>
+    <div class="nav" style="margin-top:0; margin-bottom:24px"><span class="count" id="ft-count"></span></div>
+    <div id="ft-groups"></div>
+    <div id="ft-other" hidden style="margin-top:30px">
+      <textarea id="ft-txt" rows="2" placeholder="Quel format, exactement ?"></textarea>
+      <div class="tools">
+        <button class="mic" type="button" id="ft-mic"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/></svg><span>Parler</span></button>
+        <span class="note micok">Cliquez, puis parlez : ce que vous dites s'écrit tout seul.</span>
+        <span class="note micbad">Le micro n'est pas disponible dans cette fenêtre. Écrivez votre réponse.</span>
+      </div>
+    </div>
+    <p class="grp">Niveau de détail</p>
+    <div class="pills" id="det"></div>
+    <p class="lim" id="ft-lim" hidden></p>
+    <div class="nav">
+      <button class="go" type="button" id="ft-go">Continuer</button>
+      <button class="txtbtn" type="button" id="ft-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-asm" hidden>
+    <p class="eyebrow">Dernière précision</p>
+    <h2 class="ask">Un seul fichier, ou plusieurs ?</h2>
+    <p class="guide" id="am-guide"></p>
+    <ul class="list" id="am-list"></ul>
+    <div id="am-main" hidden>
+      <p class="grp">Lequel contient les autres ?</p>
+      <ul class="list" id="am-mainlist"></ul>
+    </div>
+    <p class="lim" id="am-lim" hidden></p>
+    <div class="nav">
+      <button class="go" type="button" id="am-go">Générer le prompt</button>
+      <button class="txtbtn" type="button" id="am-back">Retour</button>
+    </div>
+  </section>
+
+  <section class="stage" id="sc-out" hidden>
+    <p class="eyebrow">Votre prompt</p>
+    <h2 class="ask">Copiez-le dans Claude, ChatGPT ou Gemini.</h2>
+    <p class="guide" id="ot-guide"></p>
+    <pre class="out" id="out" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Votre prompt, modifiable"></pre>
+    <p class="editnote">Cliquez directement dans le texte pour le corriger ou l'enrichir avant de le copier. Les fautes sont soulignées par le navigateur.</p>
+    <div class="nav">
+      <button class="go" type="button" id="copy">Copier</button>
+      <button class="txtbtn" type="button" id="refine" hidden>Affiner</button>
+      <button class="txtbtn" type="button" id="stop" hidden>Arrêter</button>
+      <button class="txtbtn" type="button" id="revert" hidden>Version d'origine</button>
+      <button class="txtbtn" type="button" id="ot-back">Modifier</button>
+      <button class="txtbtn" type="button" id="restart">Recommencer</button>
+      <span class="note" id="toast" aria-live="polite"></span>
+    </div>
+    <p class="alert" id="ot-err" hidden></p>
+    <div class="promo">
+      <p class="eyebrow" style="margin-bottom:12px">Pour aller plus loin</p>
+      <p>Un bon prompt commence avant ce site : par une idée claire, et par de vraies recherches. Il y a un ordre pour interroger les IA — laquelle pour chercher, laquelle pour trier, laquelle pour construire. Peu de gens le connaissent.</p>
+      <p>C'est ce que j'enseigne dans <em>Maîtriser l'IA</em> : une session intensive, 5 000 FCFA.</p>
+      <div class="ctas">
+        <a class="cta" href="https://wa.me/message/P3F5RN5SQDSZF1" target="_blank" rel="noopener">Réserver sur WhatsApp</a>
+        <a class="cta" href="mailto:ndecieboulandi@gmail.com?subject=Formation%20Maitriser%20l%27IA">Réserver par e-mail</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>Un prompt tient en cinq pièces : rôle, contexte, tâche, contrainte, format.</span>
+    <span>Gratuit · <a href="https://ndecie.github.io/Ndecie-Boulandi-Portfolio/" target="_blank" rel="noopener">Un site de Ndecie Boulandi</a></span>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+
+/* =====================================================================
+   RÉGLAGE — collez ici l'adresse de votre pont Cloudflare, entre les
+   guillemets. Exemple : "https://bon-prompt.ndecie.workers.dev"
+   Laissez vide pour que le site fonctionne sans IA.
+   ===================================================================== */
+var PONT = "https://le-bon-prompt.ndecieboulandi.workers.dev";
+
+
+var ACTIONS=[
+ {id:"creer",label:"Créer",desc:"Produire un fichier, un document, un support"},
+ {id:"analyser",label:"Analyser",desc:"Comprendre des données, un document, une situation"},
+ {id:"rediger",label:"Rédiger",desc:"Écrire un texte : mail, courrier, article"},
+ {id:"organiser",label:"Organiser",desc:"Planifier, structurer, suivre, répartir"},
+ {id:"automatiser",label:"Automatiser",desc:"Gagner du temps sur une tâche répétitive"},
+ {id:"expliquer",label:"Expliquer",desc:"Comprendre un sujet ou le faire comprendre"},
+ {id:"decider",label:"Décider",desc:"Comparer, arbitrer, chiffrer"},
+ {id:"corriger",label:"Corriger",desc:"Relire, reformuler, résumer, traduire"},
+ {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}
+];
+var OBJETS={
+ creer:[{id:"tableau",label:"Un tableau, un fichier Excel",desc:"Suivi, recensement, calcul"},
+   {id:"document",label:"Un document, un rapport",desc:"Note, procédure, dossier"},
+   {id:"presentation",label:"Une présentation",desc:"Diapositives pour une réunion"},
+   {id:"formulaire",label:"Un formulaire",desc:"À faire remplir par d'autres"},
+   {id:"modele",label:"Un modèle réutilisable",desc:"Un gabarit qui resservira"},
+   {id:"visuel",label:"Un contenu visuel",desc:"Image, vidéo, carrousel, affiche"},
+   {id:"web",label:"Un site, une page",desc:"Vitrine, portfolio, mini-site"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ analyser:[{id:"chiffres",label:"Des données chiffrées",desc:"Ventes, budget, paie, statistiques"},
+   {id:"doc",label:"Un document, un contrat",desc:"Points clés, risques, oublis"},
+   {id:"retours",label:"Des réponses, des retours",desc:"Enquête, avis, remontées terrain"},
+   {id:"situation",label:"Une situation, un problème",desc:"Causes, leviers, scénarios"},
+   {id:"texte",label:"Un texte, un discours",desc:"Fond, ton, structure, arguments"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ rediger:[{id:"mail",label:"Un e-mail, un message",desc:"Relance, réponse, annonce"},
+   {id:"courrier",label:"Un courrier officiel",desc:"Administration, client, partenaire"},
+   {id:"publication",label:"Un article, une publication",desc:"Blog, LinkedIn, newsletter"},
+   {id:"pitch",label:"Un argumentaire",desc:"Convaincre, vendre, défendre"},
+   {id:"compterendu",label:"Un compte-rendu",desc:"Réunion, mission, incident"},
+   {id:"candidature",label:"Un CV, une lettre",desc:"Candidature, dossier, bourse"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ organiser:[{id:"planning",label:"Un planning",desc:"Échéances, rotations, jalons"},
+   {id:"suivi",label:"Un suivi de dossiers",desc:"Qui fait quoi, où ça en est"},
+   {id:"reunion",label:"Une réunion",desc:"Ordre du jour, déroulé, décisions"},
+   {id:"projet",label:"Un projet",desc:"Étapes, budget, risques"},
+   {id:"roles",label:"Une équipe, des rôles",desc:"Répartition, délégation"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ automatiser:[{id:"tableur",label:"Un tableur",desc:"Formules, listes déroulantes, macros"},
+   {id:"mails",label:"Des e-mails répétitifs",desc:"Modèles, tri, règles, relances"},
+   {id:"fichiers",label:"Un classement de fichiers",desc:"Renommage, tri, archivage"},
+   {id:"saisie",label:"Une saisie de données",desc:"Recopie, import, contrôle"},
+   {id:"relance",label:"Des rappels, des relances",desc:"Alertes de retard, échéances"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ expliquer:[{id:"comprendre",label:"Comprendre un sujet",desc:"Qu'on me l'explique simplement"},
+   {id:"support",label:"Un support de formation",desc:"Cours, module, livret"},
+   {id:"tuto",label:"Un tutoriel pas à pas",desc:"Chaque clic, chaque écran"},
+   {id:"quiz",label:"Un quiz, des exercices",desc:"Évaluer ou faire pratiquer"},
+   {id:"vulgariser",label:"Une vulgarisation",desc:"Adapter au niveau du public"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ decider:[{id:"comparer",label:"Comparer des options",desc:"Critères, avantages, limites"},
+   {id:"risque",label:"Évaluer un risque",desc:"Ce qui peut mal tourner"},
+   {id:"chiffrer",label:"Chiffrer, budgétiser",desc:"Coûts, marge, tarif"},
+   {id:"prestataire",label:"Choisir un prestataire",desc:"Grille, questions à poser"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ corriger:[{id:"orthographe",label:"Corriger la langue",desc:"Orthographe, style, sans toucher au fond"},
+   {id:"reformuler",label:"Reformuler",desc:"Plus clair, plus court, plus pro"},
+   {id:"traduire",label:"Traduire",desc:"En gardant le ton"},
+   {id:"resumer",label:"Résumer",desc:"Garder l'essentiel"},
+   {id:"adapter",label:"Adapter à un autre public",desc:"Même fond, autre registre"},
+   {id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"}],
+ autre:[{id:"autre",label:"Je le dis avec mes mots",desc:"En une phrase, ce que vous cherchez"}]
+};
+var DOMAINES=[
+ {id:"rh",label:"RH & paie",desc:"Bulletins, absences, congés, contrats"},
+ {id:"finance",label:"Finance & comptabilité",desc:"Budget, trésorerie, factures"},
+ {id:"marketing",label:"Marketing & communication",desc:"Contenus, campagnes, marque"},
+ {id:"commercial",label:"Commercial & ventes",desc:"Prospection, devis, clients"},
+ {id:"admin",label:"Administration & juridique",desc:"Courriers, contrats, conformité"},
+ {id:"operations",label:"Opérations & logistique",desc:"Production, stocks, achats"},
+ {id:"formation",label:"Enseignement & formation",desc:"Cours, ateliers, évaluation"},
+ {id:"sante",label:"Santé & social",desc:"Suivi, dossiers, prévention"},
+ {id:"tech",label:"Informatique & technique",desc:"Code, données, systèmes"},
+ {id:"assoc",label:"Association & terrain",desc:"GIE, coopérative, ONG, bailleurs"},
+ {id:"perso",label:"Projet personnel, études",desc:"Organisation, candidatures"},
+ {id:"autre",label:"Autre domaine",desc:"Je le dis avec mes mots"}
+];
+var ROLES={rh:"responsable RH et paie chevronné, à l'aise avec les bulletins, les absences, les saisies volontaires et les régularisations",
+ finance:"contrôleur de gestion et expert-comptable, rigoureux sur les chiffres et la traçabilité",
+ marketing:"directeur marketing et communication digitale, orienté résultats concrets",
+ commercial:"responsable commercial expérimenté, direct et orienté client",
+ admin:"responsable administratif et juridique, précis sur la forme et la conformité",
+ operations:"responsable des opérations et de la logistique, habitué au terrain",
+ formation:"ingénieur pédagogique et formateur, capable d'expliquer sans jargon",
+ sante:"coordinateur santé et social, attentif à la confidentialité et au suivi",
+ tech:"ingénieur logiciel et data, pragmatique et attaché au code qui tourne",
+ assoc:"chargé de projet associatif, habitué aux GIE, coopératives et bailleurs de fonds",
+ perso:"coach en organisation personnelle, concret et réaliste",
+ autre:"expert reconnu du domaine concerné"};
+
+/* --- banque de questions : le détective sans IA --- */
+var Q_DOM={
+ rh:[{l:"Anomalies fréquentes",q:"Quelles erreurs reviennent le plus souvent chez vous, et à quelle fréquence ?",h:"Absences, congés, prêts, régularisations…"},
+   {l:"Répartition des saisies",q:"Qui saisit quoi aujourd'hui : le centre, le siège, ou les deux ?",h:"Et où ça se perd entre les deux."},
+   {l:"Règles internes",q:"Quelles règles, conventions ou dates limites ne souffrent aucune exception ?",h:""},
+   {l:"Périmètre",q:"Combien de personnes, de sites ou de pays sont concernés ?",h:""}],
+ finance:[{l:"Période et maille",q:"Sur quelle période et à quelle maille : le mois, le trimestre, le centre de coût ?",h:""},
+   {l:"Source des chiffres",q:"D'où sortent les chiffres, et sont-ils déjà fiables ou faut-il les nettoyer ?",h:""},
+   {l:"Seuils d'alerte",q:"Quel écart ou quel ratio doit déclencher une alerte chez vous ?",h:""},
+   {l:"Validation",q:"Qui valide au final, et qu'est-ce que cette personne regarde en premier ?",h:""}],
+ marketing:[{l:"Cible et canal",q:"À qui parlez-vous exactement, et où cette personne va-t-elle vous voir ?",h:"Son âge, son métier, la plateforme."},
+   {l:"Message clé",q:"S'il ne devait rester qu'une seule idée en tête, ce serait laquelle ?",h:""},
+   {l:"Ton de marque",q:"Quel ton est interdit chez vous, et quel ton vous ressemble ?",h:""},
+   {l:"Mesure du succès",q:"À quoi verrez-vous que ça a marché : vues, messages, ventes, rendez-vous ?",h:""}],
+ commercial:[{l:"Étape du cycle",q:"Où en êtes-vous avec cette personne : premier contact, relance, négociation ?",h:""},
+   {l:"Objection type",q:"Quelle objection revient systématiquement, et que répondez-vous aujourd'hui ?",h:""},
+   {l:"Différenciation",q:"Qu'est-ce qui vous distingue réellement de vos concurrents sur ce point ?",h:""},
+   {l:"Action attendue",q:"Quel prochain pas concret voulez-vous obtenir après lecture ?",h:""}],
+ admin:[{l:"Destinataire",q:"À qui s'adresse ce document, et quel pouvoir a cette personne sur votre dossier ?",h:""},
+   {l:"Références obligatoires",q:"Quels textes, articles, numéros ou procédures doivent obligatoirement figurer ?",h:""},
+   {l:"Délai",q:"Quelle échéance encadre cette démarche, et que se passe-t-il si elle est dépassée ?",h:""},
+   {l:"Risque de rejet",q:"Qu'est-ce qui pourrait faire rejeter ou contester ce document ?",h:""}],
+ operations:[{l:"Point de blocage",q:"Où exactement ça coince dans la chaîne, et depuis quand ?",h:""},
+   {l:"Volumes et délais",q:"Quels volumes traitez-vous, et quels délais faut-il tenir ?",h:""},
+   {l:"Qui fait quoi",q:"Qui intervient à chaque étape, et qui tranche en cas d'imprévu ?",h:""},
+   {l:"Contraintes terrain",q:"Qu'est-ce qui, sur le terrain, rend la solution théorique inapplicable ?",h:""}],
+ formation:[{l:"Niveau des apprenants",q:"Qui sont vos apprenants, et que savent-ils déjà sur le sujet ?",h:""},
+   {l:"Compétence visée",q:"Qu'est-ce qu'ils doivent savoir FAIRE à la fin, concrètement ?",h:"Pas « comprendre » : faire."},
+   {l:"Durée et conditions",q:"Combien de temps avez-vous, et dans quelles conditions matérielles ?",h:""},
+   {l:"Point de blocage",q:"Quelle notion coince toujours, année après année ?",h:""}],
+ sante:[{l:"Public suivi",q:"Qui sont les personnes concernées, et qu'est-ce qui les distingue ?",h:""},
+   {l:"Confidentialité",q:"Quelles informations ne doivent en aucun cas apparaître dans le résultat ?",h:""},
+   {l:"Cadre applicable",q:"Quel protocole, cadre ou référentiel s'impose à vous ?",h:""},
+   {l:"Usage du document",q:"Qui va lire ce document, et pour en faire quoi ensuite ?",h:""}],
+ tech:[{l:"Environnement",q:"Quel langage, quelle version, et où ça tourne ?",h:""},
+   {l:"Entrées et sorties",q:"Quelles données entrent, et quelles données doivent sortir ?",h:""},
+   {l:"Existant",q:"Qu'est-ce qui existe déjà et qu'il ne faut surtout pas casser ?",h:""},
+   {l:"Critère de test",q:"Comment saurez-vous que ça marche : quel test, quel cas limite ?",h:""}],
+ assoc:[{l:"Financeur et attentes",q:"Qui finance, et qu'est-ce que ce financeur attend précisément de vous ?",h:""},
+   {l:"Périmètre",q:"Combien de membres ou de bénéficiaires, et sur quelle zone ?",h:""},
+   {l:"Moyens réels",q:"De quoi disposez-vous vraiment : budget, matériel, personnes disponibles ?",h:""},
+   {l:"Tentatives passées",q:"Qu'a-t-on déjà tenté dans votre structure, et pourquoi ça n'a pas tenu ?",h:""}],
+ perso:[{l:"Temps disponible",q:"Combien de temps avez-vous réellement chaque semaine pour ça ?",h:"Soyez honnête, pas optimiste."},
+   {l:"Tentatives passées",q:"Qu'avez-vous déjà essayé, et à quel moment vous avez lâché ?",h:""},
+   {l:"Non négociable",q:"Qu'est-ce qui doit rester inchangé dans votre organisation actuelle ?",h:""},
+   {l:"Échéance",q:"Pour quand voulez-vous voir un premier résultat ?",h:""}],
+ autre:[{l:"Utilisateurs",q:"Qui va utiliser ce résultat, et avec quel niveau de connaissance du sujet ?",h:""},
+   {l:"Éléments obligatoires",q:"Quels éléments doivent obligatoirement y figurer ?",h:""},
+   {l:"Non négociable",q:"Quelles contraintes ne sont pas négociables : délai, longueur, langue, budget ?",h:""},
+   {l:"Enjeu",q:"Qu'est-ce qui se passe concrètement si le résultat n'est pas bon ?",h:""}]
+};
+var FAM={tableau:"grille",tableur:"grille",formulaire:"grille",suivi:"grille",
+ document:"doc",compterendu:"doc",modele:"doc",
+ mail:"mot",courrier:"mot",publication:"mot",pitch:"mot",candidature:"mot",
+ reformuler:"mot",orthographe:"mot",traduire:"mot",resumer:"mot",adapter:"mot",
+ presentation:"scene",
+ visuel:"image",web:"image",
+ chiffres:"loupe",doc:"loupe",retours:"loupe",situation:"loupe",texte:"loupe",
+ comparer:"loupe",risque:"loupe",chiffrer:"loupe",prestataire:"loupe",
+ planning:"plan",projet:"plan",roles:"plan",reunion:"plan",
+ mails:"rouage",fichiers:"rouage",saisie:"rouage",relance:"rouage",
+ comprendre:"ecole",support:"ecole",tuto:"ecole",quiz:"ecole",vulgariser:"ecole"};
+var Q_FAM={
+ grille:[{l:"Une ligne = quoi",q:"Que représente une seule ligne de votre tableau : une personne, un dossier, un mois ?",h:""},
+   {l:"Listes déroulantes",q:"Quelles colonnes doivent être des listes fermées, et avec quelles valeurs exactes ?",h:"C'est ce qui empêche chacun d'écrire à sa manière."}],
+ doc:[{l:"Longueur et lecture",q:"Quelle longueur maximale, et qui va le lire en diagonale ?",h:""},
+   {l:"Structure imposée",q:"Quelles parties sont imposées, et lesquelles êtes-vous libre d'écrire ?",h:""}],
+ mot:[{l:"Réaction visée",q:"Quelle réaction voulez-vous provoquer chez celui qui lit ?",h:""},
+   {l:"Registre",q:"Quel niveau de formalité : tutoiement, vouvoiement, protocole strict ?",h:""}],
+ scene:[{l:"Durée et auditoire",q:"Combien de minutes avez-vous, et devant combien de personnes ?",h:""},
+   {l:"Issue attendue",q:"Quelle décision ou quelle action attendez-vous à la fin ?",h:""}],
+ image:[{l:"Format et support",q:"Quelles dimensions, et où ça sera publié ?",h:""},
+   {l:"Charte",q:"Quelles couleurs, polices ou éléments de marque devez-vous respecter ?",h:""}],
+ loupe:[{l:"Décision à prendre",q:"Quelle décision devez-vous prendre à partir de cette analyse ?",h:""},
+   {l:"Données disponibles",q:"Qu'avez-vous réellement sous la main, et sous quelle forme ?",h:""}],
+ plan:[{l:"Diffusion et rythme",q:"Qui doit voir ce document, et à quelle fréquence sera-t-il mis à jour ?",h:""},
+   {l:"Échéances fixes",q:"Quelles dates ne peuvent absolument pas bouger ?",h:""}],
+ rouage:[{l:"Fréquence et durée",q:"Combien de fois par semaine faites-vous cette tâche, et combien de temps elle prend ?",h:""},
+   {l:"Outils en place",q:"Avec quels outils travaillez-vous : Excel, Outlook, Google, autre ?",h:""}],
+ ecole:[{l:"Support",q:"Sur quel support : papier, écran, ou en direct devant les gens ?",h:""},
+   {l:"Exemples",q:"Faut-il des exemples tirés de votre propre contexte, ou des exemples génériques suffisent ?",h:""}],
+ defaut:[{l:"Éléments obligatoires",q:"Quels éléments doivent obligatoirement figurer dans le résultat ?",h:""},
+   {l:"À éviter",q:"Qu'est-ce qui ne doit surtout pas s'y trouver ?",h:""}]
+};
+var Q_FIN={l:"Échecs passés",q:"Qu'est-ce qui a déjà raté quand vous avez essayé, seule ou avec une IA ?",h:"C'est souvent la réponse la plus utile de toutes."};
+
+function bank(){
+ var d=(Q_DOM[st.domaine]||Q_DOM.autre).slice(0,3);
+ var f=Q_FAM[FAM[st.objet]||"defaut"]||Q_FAM.defaut;
+ return d.concat(f,[Q_FIN]).map(function(x){return {label:x.l,q:x.q,hint:x.h,a:""}});
+}
+
+/* ===================== FORMATS DE SORTIE ===================== */
+var FMT=[
+ {g:"Documents texte",items:[
+  {id:"docx",l:"Word (.docx)"},{id:"pdf",l:"PDF (.pdf)"},{id:"odt",l:"OpenDocument texte (.odt)"},
+  {id:"txt",l:"Texte brut (.txt)"},{id:"md",l:"Markdown (.md)"},{id:"epub",l:"Livre numérique (.epub)"},
+  {id:"gdoc",l:"Google Docs"}]},
+ {g:"Présentations",items:[
+  {id:"pptx",l:"PowerPoint (.pptx)"},{id:"odp",l:"OpenDocument présentation (.odp)"},
+  {id:"gslides",l:"Google Slides"},{id:"canva",l:"Canva"},{id:"pdfpres",l:"PDF de présentation"}]},
+ {g:"Tableurs et données",items:[
+  {id:"xlsx",l:"Excel (.xlsx)"},{id:"xlsm",l:"Excel avec macros (.xlsm)"},{id:"csv",l:"CSV (.csv)"},
+  {id:"ods",l:"OpenDocument classeur (.ods)"},{id:"gsheets",l:"Google Sheets"},{id:"json",l:"JSON"},
+  {id:"sql",l:"Requête SQL"},{id:"tableau",l:"Tableau dans le texte"}]},
+ {g:"Images et visuels",items:[
+  {id:"png",l:"Image PNG ou JPG"},{id:"svg",l:"SVG vectoriel"},{id:"gif",l:"GIF animé"},
+  {id:"psd",l:"Fichier Photoshop (.psd)"},{id:"ai",l:"Fichier Illustrator (.ai)"},
+  {id:"figma",l:"Maquette Figma ou Canva"},{id:"carrousel",l:"Carrousel réseaux sociaux"}]},
+ {g:"Audio et vidéo",items:[
+  {id:"mp4",l:"Vidéo (.mp4)"},{id:"mp3",l:"Audio (.mp3)"},{id:"script",l:"Script vidéo minuté"},
+  {id:"srt",l:"Sous-titres (.srt)"},{id:"montage",l:"Projet de montage (CapCut, Premiere)"}]},
+ {g:"Web et code",items:[
+  {id:"html",l:"Page HTML"},{id:"site",l:"Site complet"},{id:"code",l:"Code, langage au choix"},
+  {id:"zip",l:"Archive ZIP"}]},
+ {g:"Divers",items:[
+  {id:"ics",l:"Calendrier (.ics)"},{id:"vcf",l:"Carte de visite (.vcf)"},
+  {id:"autre",l:"Autre format — je précise"},{id:"libre",l:"Peu importe, choisis pour moi"}]}
+];
+var FMT_ALL={}; FMT.forEach(function(g){ g.items.forEach(function(o){ FMT_ALL[o.id]=o.l }) });
+function fmtLabel(id){ return id==="autre"?(st.formatAutre||"un format que je précise"):(FMT_ALL[id]||id) }
+
+var SCRIPT={pptx:"python-pptx",docx:"python-docx",xlsx:"openpyxl",xlsm:"openpyxl",pdf:"reportlab",
+ pdfpres:"reportlab",odt:"odfpy",odp:"odfpy",ods:"odfpy",epub:"ebooklib",png:"Pillow",gif:"Pillow",
+ mp4:"moviepy",mp3:"pydub",zip:"zipfile"};
+
+var FORMAT_TXT={
+ docx:"Un vrai fichier Word .docx, prêt à ouvrir : titre, sections numérotées, sous-titres, mise en forme appliquée.",
+ pdf:"Un vrai fichier PDF .pdf, prêt à ouvrir et à imprimer : pagination claire, titres hiérarchisés, et la mise en page appliquée.",
+ odt:"Un vrai fichier OpenDocument texte .odt, ouvrable dans LibreOffice Writer.",
+ txt:"Un fichier texte brut .txt, sans aucune mise en forme, prêt à copier-coller.",
+ md:"Un fichier Markdown .md, titres, listes et tableaux correctement balisés.",
+ epub:"Un vrai fichier ePub .epub : couverture, sommaire cliquable, chapitres séparés.",
+ gdoc:"Le contenu complet prêt à coller dans Google Docs, avec l'indication des styles de titre à appliquer (Titre 1, Titre 2) à chaque niveau.",
+ pptx:"Un vrai fichier PowerPoint .pptx, prêt à ouvrir et à projeter : le texte complet de chaque diapositive (titre et points), les notes de l'orateur dans la zone Notes de chaque diapositive, et la direction artistique appliquée aux polices, couleurs et visuels.",
+ odp:"Un vrai fichier OpenDocument présentation .odp, ouvrable dans LibreOffice Impress.",
+ gslides:"Le contenu complet prêt à monter dans Google Slides : une diapositive par bloc, titre, points, note de l'orateur, et la marche à suivre pour l'importer.",
+ canva:"Le contenu complet prêt à monter dans Canva : une diapositive ou un visuel par bloc, avec le texte exact, la description du visuel et les couleurs à appliquer.",
+ pdfpres:"Un vrai fichier PDF de présentation, une diapositive par page, au format paysage 16:9.",
+ xlsx:"Un vrai fichier Excel .xlsx, prêt à ouvrir : en-têtes, données, formules qui fonctionnent, et pour chaque colonne concernée une liste déroulante avec ses valeurs exactes.",
+ xlsm:"Un vrai fichier Excel .xlsm avec ses macros VBA, prêt à ouvrir, et le code des macros expliqué ligne par ligne.",
+ csv:"Un fichier CSV .csv, séparateur point-virgule, encodage UTF-8, une ligne d'en-tête.",
+ ods:"Un vrai fichier OpenDocument classeur .ods, ouvrable dans LibreOffice Calc.",
+ gsheets:"Le contenu prêt à coller dans Google Sheets, colonnes séparées par des tabulations, plus les formules à saisir et la marche à suivre pour créer les listes déroulantes.",
+ json:"Un fichier JSON valide, correctement indenté, avec le schéma des champs expliqué en dessous.",
+ sql:"Une ou plusieurs requêtes SQL complètes et commentées, avec le dialecte précisé.",
+ tableau:"Un ou plusieurs tableaux en Markdown, colonnes clairement nommées, une ligne par élément.",
+ png:"Un vrai fichier image PNG ou JPG, aux dimensions que j'indique.",
+ svg:"Un fichier SVG vectoriel complet, code inclus, qui reste net à toutes les tailles.",
+ gif:"Un vrai fichier GIF animé, avec la durée et la cadence précisées.",
+ psd:"Un fichier Photoshop .psd en calques séparés et nommés.",
+ ai:"Un fichier Illustrator .ai vectoriel, éléments séparés et nommés.",
+ figma:"La maquette décrite écran par écran, prête à monter dans Figma ou Canva : dimensions, grille, position de chaque élément, polices et couleurs exactes.",
+ carrousel:"Un carrousel pour les réseaux sociaux : une diapositive par écran, avec pour chacune le texte exact affiché, la description du visuel, et la légende du post à la fin.",
+ mp4:"Un vrai fichier vidéo .mp4, avec la durée et le format d'image précisés.",
+ mp3:"Un vrai fichier audio .mp3.",
+ script:"Un script vidéo minuté : pour chaque plan, la durée en secondes, ce qu'on voit à l'écran, et le texte exact de la voix off.",
+ srt:"Un fichier de sous-titres .srt, horodatage au format standard, une phrase courte par bloc.",
+ montage:"Le plan de montage complet, prêt à reproduire dans CapCut ou Premiere : ordre des séquences, durées, transitions, textes incrustés et musique.",
+ html:"Le code HTML complet d'une page, styles et scripts compris, dans un seul fichier prêt à mettre en ligne.",
+ site:"Un site complet, fichier par fichier, avec l'arborescence des dossiers et la marche à suivre pour le mettre en ligne.",
+ code:"Du code complet et commenté, dans un seul bloc, suivi des instructions pour l'exécuter.",
+ zip:"Une archive ZIP contenant tous les fichiers, avec la liste de son contenu.",
+ ics:"Un fichier calendrier .ics valide, importable dans Google Agenda ou Outlook.",
+ vcf:"Un fichier de contact .vcf valide.",
+ libre:"Choisis toi-même le format le plus adapté à ce besoin, nomme-le précisément, et dis-moi en une ligne pourquoi tu l'as choisi."};
+
+function fmtLine(id){
+  if(id==="autre") return "Le format que je précise : "+(st.formatAutre||"(à préciser)")+". Nomme-le explicitement et livre-le tel quel.";
+  var base=FORMAT_TXT[id]||FMT_ALL[id];
+  if(SCRIPT[id]) base+=" Si tu ne peux pas produire de fichier toi-même, donne-moi à la place un script Python complet et prêt à exécuter, utilisant "+SCRIPT[id]+", qui génère ce fichier — et rien d'autre.";
+  return base;
+}
+
+var DETAILS=[{id:"synthetique",label:"Synthétique"},{id:"equilibre",label:"Équilibré"},{id:"detaille",label:"Très détaillé"}];
+var DETAIL_TXT={synthetique:"synthétique — l'essentiel, pas de remplissage",
+ equilibre:"équilibré — utilisable directement, sans longueurs",
+ detaille:"très détaillé — explique chaque choix et guide pas à pas, en supposant que je débute"};
+
+var st={actions:[],actionAutre:"",objets:[],objetAutre:"",domaines:[],domaineAutre:"",besoin:"",formats:[],formatAutre:"",asm:"",asmMain:"",detail:"equilibre",ad:false,styles:[],typos:[],fonts:{},pals:[],cliches:[]};
+var qa=[], cur=0, round=0, r2start=-1, pick=1, original="", ai=null, ctl=null;
+
+function labelsOf(list,ids,libre){
+  var out=[];
+  ids.forEach(function(id){
+    if(id==="autre"){ if(libre&&libre.trim()) out.push(libre.trim()); return }
+    for(var i=0;i<list.length;i++) if(list[i].id===id){ out.push(list[i].label); return }
+  });
+  return out;
+}
+function join(a){ if(!a.length) return ""; if(a.length===1) return a[0]; return a.slice(0,-1).join(", ")+" et "+a[a.length-1]; }
+function low(t){return t?t.charAt(0).toLowerCase()+t.slice(1):""}
+function objList(){
+  var seen={}, out=[], autre=null;
+  (st.actions.length?st.actions:["autre"]).forEach(function(a){
+    (OBJETS[a]||OBJETS.autre).forEach(function(o){
+      if(seen[o.id]) return; seen[o.id]=1;
+      if(o.id==="autre"){ autre=o; return }
+      out.push(o);
+    });
+  });
+  out.push(autre||{id:"autre",label:"Autre chose",desc:"Je le dis avec mes mots"});
+  return out;
+}
+function roleText(){
+  var rs=st.domaines.map(function(d){return ROLES[d]}).filter(Boolean);
+  if(!rs.length) return "un "+ROLES.autre;
+  if(rs.length===1) return "un "+rs[0];
+  return "à la fois un "+rs.join(", et un ");
+}
+
+/* --- micro --- */
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null;
+if(!SR) document.documentElement.classList.add("nomic");
+function micLabel(b,t){ var s=b.querySelector("span"); if(s) s.textContent=t }
+function micOff(b){ rec=null; if(b){ b.classList.remove("rec"); micLabel(b,"Parler") } }
+function dictate(ta,b){
+  if(rec){ try{rec.stop()}catch(e){} micOff(b); return }
+  var r; try{ r=new SR() }catch(e){ return }
+  r.lang="fr-FR"; r.continuous=true; r.interimResults=true;
+  var base=ta.value?ta.value.replace(/\s+$/,"")+" ":"", fin="";
+  r.onresult=function(e){
+    var itm="";
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      var x=e.results[i][0].transcript;
+      if(e.results[i].isFinal) fin+=x+" "; else itm+=x;
+    }
+    ta.value=base+fin+itm; grow(ta);
+  };
+  r.onerror=function(e){ micOff(b);
+    if(e.error==="not-allowed"||e.error==="service-not-allowed") document.documentElement.classList.add("nomic") };
+  r.onend=function(){ micOff(b) };
+  rec=r; b.classList.add("rec"); micLabel(b,"J'écoute — arrêter");
+  try{ r.start() }catch(e){ micOff(b) }
+}
+function grow(ta){ ta.style.height="auto"; ta.style.height=Math.max(ta.scrollHeight,64)+"px" }
+[["pk-txt","pk-mic"],["nd-txt","nd-mic"],["as-txt","as-mic"],["ft-txt","ft-mic"]].forEach(function(p){
+  var ta=$(p[0]), b=$(p[1]);
+  b.onclick=function(){ dictate(ta,b) };
+  ta.addEventListener("input",function(){grow(ta)});
+});
+
+/* --- écrans --- */
+var SCR=["sc-pick","sc-need","sc-ask","sc-wait","sc-ad","sc-style","sc-typo","sc-font","sc-pal","sc-cli","sc-fmt","sc-asm","sc-out"];
+function show(id,p){
+  SCR.forEach(function(s){ $(s).hidden=(s!==id) });
+  document.body.setAttribute("data-wide", id==="sc-out"?"1":"0");
+  $("prog").style.width=Math.round(p*100)+"%";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderPick(n){
+  pick=n;
+  var cfg = n===1 ? {eye:"Étape 1 sur 4 · L'intention", ask:"Qu'est-ce que vous voulez faire ?",
+        guide:"Cochez un verbe — ou plusieurs, si votre projet en réunit plusieurs. Cliquez sur Continuer quand c'est fait.",
+        list:ACTIONS, key:"actions", other:"actionAutre", p:.07}
+   : n===2 ? {eye:"Étape 2 sur 4 · L'objet", ask:"Pour obtenir quoi, exactement ?",
+        guide:"Cochez tout ce que vous voulez obtenir au bout du compte. Plusieurs réponses sont possibles.",
+        list:objList(), key:"objets", other:"objetAutre", p:.17}
+   : {eye:"Étape 3 sur 4 · Le métier", ask:"Dans quel domaine ?",
+        guide:"Cochez tous les métiers concernés. C'est ce qui donnera à l'IA le bon vocabulaire.",
+        list:DOMAINES, key:"domaines", other:"domaineAutre", p:.27};
+
+  $("pk-eye").textContent=cfg.eye; $("pk-ask").textContent=cfg.ask; $("pk-guide").textContent=cfg.guide;
+  $("pk-back").hidden=(n===1); $("demo").hidden=(n!==1); $("pk-err").hidden=true;
+  var other=$("pk-other"), ta=$("pk-txt");
+  ta.value=st[cfg.other]||"";
+  function sync(){ other.hidden = st[cfg.key].indexOf("autre")<0; if(!other.hidden) grow(ta) }
+  sync();
+
+  var ul=$("pk-list"); ul.textContent="";
+  cfg.list.forEach(function(o){
+    var li=document.createElement("li");
+    var b=document.createElement("button"); b.type="button"; b.className="row";
+    b.setAttribute("aria-pressed", st[cfg.key].indexOf(o.id)>=0?"true":"false");
+    var m=document.createElement("span"); m.className="mark";
+    var t=document.createElement("span"); t.className="t"; t.textContent=o.label;
+    var d=document.createElement("span"); d.className="d"; d.textContent=o.desc;
+    b.appendChild(m); b.appendChild(t); b.appendChild(d);
+    b.onclick=function(){
+      var arr=st[cfg.key], i=arr.indexOf(o.id);
+      if(i>=0) arr.splice(i,1); else arr.push(o.id);
+      b.setAttribute("aria-pressed", i>=0?"false":"true");
+      $("pk-err").hidden=true; sync();
+      if(o.id==="autre"&&i<0){ ta.focus(); other.scrollIntoView({behavior:"smooth",block:"center"}) }
+    };
+    li.appendChild(b); ul.appendChild(li);
+  });
+  $("pk-go").onclick=function(){
+    if(!st[cfg.key].length){ $("pk-err").textContent="Cochez au moins une réponse pour continuer."; $("pk-err").hidden=false; return }
+    if(st[cfg.key].indexOf("autre")>=0 && !ta.value.trim()){
+      $("pk-err").textContent="Précisez ce que vous entendez par « Autre chose », ou décochez-le.";
+      $("pk-err").hidden=false; ta.focus(); return }
+    st[cfg.other]=ta.value.trim();
+    if(n===2){ st.objets=st.objets.filter(function(id){ return objList().some(function(o){return o.id===id}) }) }
+    if(n<3) renderPick(n+1); else openNeed();
+  };
+  show("sc-pick",cfg.p);
+}
+$("pk-back").onclick=function(){ renderPick(pick-1) };
+$("home").onclick=function(){ reset() };
+
+function openNeed(){
+  $("nd-eye").textContent="Étape 4 sur 4 · Votre situation";
+  $("nd-guide").textContent="Vous voulez "+low(join(labelsOf(ACTIONS,st.actions,st.actionAutre)))+
+    ". Pour obtenir : "+join(labelsOf(objList(),st.objets,st.objetAutre))+
+    ". Domaine : "+join(labelsOf(DOMAINES,st.domaines,st.domaineAutre))+
+    ". Racontez maintenant, avec vos mots, même en désordre — les questions qui suivent seront écrites à partir de ce que vous dites ici.";
+  $("nd-txt").value=st.besoin; grow($("nd-txt")); $("nd-err").hidden=true;
+  show("sc-need",.38);
+}
+$("nd-back").onclick=function(){ renderPick(3) };
+$("nd-go").onclick=function(){
+  var v=$("nd-txt").value.trim();
+  if(v.length<40){ $("nd-err").hidden=false; $("nd-txt").focus(); return }
+  st.besoin=v; qa=[]; cur=0; round=0; r2start=-1; startRound();
+};
+
+/* --- détecteur de trous : ce que la personne n'a PAS dit --- */
+var PROBES=[
+ {l:"Cas concret",t:function(b){return b.length<180},
+  q:"Votre description reste générale. Racontez-moi un cas réel, une fois précise où ça s'est mal passé.",h:"C'est le détail vrai qui fait la différence."},
+ {l:"Destinataires",t:function(b){return !/(client|équipe|collabor|collègue|direction|patron|public|utilisateur|usager|lecteur|élève|étudiant|membre|salarié|agent|partenaire|employé|manager|responsable|destinataire|bénéficiaire|apprenant|participant|prospect|abonné|adhérent)/i.test(b)},
+  q:"Vous n'avez pas dit qui, à part vous, va lire ou utiliser ce résultat. Qui sont ces personnes ?",h:"Leur métier, leur niveau, ce qu'elles savent déjà."},
+ {l:"Volumes",t:function(b){return !/\d/.test(b)},
+  q:"Vous n'avez donné aucun chiffre. Combien exactement : combien de personnes, de lignes, de pages, de fois par mois ?",h:"Un ordre de grandeur suffit."},
+ {l:"Délai et rythme",t:function(b){return !/(délai|date|avant|échéance|semaine|mois|jour|urgent|deadline|chaque|tous les|annuel|trimestre|lundi|vendredi)/i.test(b)},
+  q:"Aucune échéance dans votre description. Pour quand, et est-ce que ça se répète ?",h:""},
+ {l:"Et après",t:function(b){return !/(ensuite|après|puis |une fois|par la suite|renvoi|retour|transmet|envoie|remonte)/i.test(b)},
+  q:"Une fois le résultat entre vos mains, qu'est-ce qui se passe concrètement ?",h:"Qui le reçoit, qui en fait quoi."},
+ {l:"À éviter",t:function(b){return !/(sauf|sans |ne pas|pas de |interdit|éviter|jamais|surtout pas)/i.test(b)},
+  q:"Vous avez dit ce que vous voulez, pas ce que vous refusez. Qu'est-ce qui ne doit surtout PAS s'y trouver ?",h:""},
+ {l:"Outils en place",t:function(b){return !/(excel|word|outlook|google|drive|notion|whatsapp|papier|logiciel|fichier|mail|sheet|pdf|powerpoint|canva)/i.test(b)},
+  q:"Avec quels outils travaillez-vous aujourd'hui sur ce sujet ?",h:"Excel, Outlook, Google, papier, autre chose."}
+];
+function bank(){
+  var b=st.besoin||"";
+  var gaps=[];
+  PROBES.forEach(function(p){ if(gaps.length<3 && p.t(b)) gaps.push({l:p.l,q:p.q,h:p.h}) });
+  var pool=(Q_DOM[st.domaines[0]]||Q_DOM.autre).slice(0,3).concat(Q_FAM[FAM[st.objets[0]]||"defaut"]||Q_FAM.defaut);
+  var need=Math.max(6-gaps.length-1,0);
+  return gaps.concat(pool.slice(0,need),[Q_FIN]).map(function(x){return {label:x.l,q:x.q,hint:x.h,a:""}});
+}
+
+/* --- interrogatoire --- */
+function waiting(t){ $("wt-txt").textContent=t; show("sc-wait",.45) }
+function clean(arr){
+  if(!Array.isArray(arr)) return [];
+  return arr.filter(function(o){return o&&o.q}).slice(0,7).map(function(o){
+    return {label:String(o.label||"Précision"), q:String(o.q), hint:String(o.hint||""), a:""};
+  });
+}
+function startRound(){
+  round=1;
+  if(!ai){ qa=bank(); cur=0; renderAsk(); return }
+  waiting("Un instant. Je relis ce que vous venez de dire, et je cherche ce qui manque.");
+  ai.json("Une personne veut "+low(join(labelsOf(ACTIONS,st.actions,st.actionAutre)))+
+    ". Résultat attendu : "+join(labelsOf(objList(),st.objets,st.objetAutre))+
+    ". Domaine : "+join(labelsOf(DOMAINES,st.domaines,st.domaineAutre))+
+    ".\n\nVoici ce qu'elle en dit, avec ses mots :\n\"\"\"\n"+st.besoin+"\n\"\"\"\n\n"+
+    "Tu es un expert reconnu de ce domaine, et c'est TOI qui devras produire ce résultat. Écris 6 questions à lui poser.\n\n"+
+    "Ton travail n'est pas de lui faire répéter ce qu'elle a déjà dit : c'est de trouver les trous. Pour chaque question, demande-toi : « qu'est-ce qui, si je l'ignore, me fera produire un résultat à côté ? »\n\n"+
+    "Cherche en priorité :\n"+
+    "- ce qu'elle tient pour évident et n'a donc pas écrit (qui remplit, qui lit, qui décide, qui valide) ;\n"+
+    "- les quantités, volumes, délais et fréquences absents de son texte ;\n"+
+    "- les cas particuliers et les exceptions que son texte suppose sans les nommer ;\n"+
+    "- les contraintes propres à ce métier qu'elle n'a pas mentionnées mais qui vont s'imposer ;\n"+
+    "- ce qui arrive au résultat après : qui le reçoit, et qu'en fait-il.\n\n"+
+    "Règles strictes :\n"+
+    "- Chaque question doit s'accrocher à un mot ou à une idée de SON texte, pour qu'elle sente que tu l'as lue. Cite-la quand c'est possible.\n"+
+    "- Ne repose jamais une question dont la réponse est déjà dans son texte.\n"+
+    "- Interdit : les questions passe-partout du type « quel est votre objectif », « quel ton souhaitez-vous », « avez-vous des contraintes », « quel est votre public ».\n"+
+    "- Une seule idée par question, 25 mots maximum, vouvoiement, en français simple.\n\n"+
+    "Réponds uniquement avec un tableau JSON de 6 objets :\n"+
+    "[{\"q\":\"la question, avec son point d'interrogation\",\"label\":\"2 ou 3 mots qui nomment l'information, sans point d'interrogation\",\"hint\":\"une phrase très courte qui aide à répondre\"}]")
+   .then(function(a){ qa=clean(a); if(qa.length<3) throw 0; cur=0; renderAsk() })
+   .catch(function(){ qa=bank(); cur=0; renderAsk() });
+}
+function vague(){
+  var out=[];
+  qa.forEach(function(x){
+    if(x.a && x.a.length<45 && out.length<2)
+      out.push({label:x.label, q:"Vous avez répondu : « "+x.a+" ». C'est court. Donnez-moi un exemple concret, un chiffre ou un cas précis.", hint:"", a:""});
+  });
+  return out;
+}
+function followups(){
+  if(!ai){ var m=vague(); if(!m.length){ afterQuestions(); return }
+    r2start=qa.length; cur=qa.length; qa=qa.concat(m); round=2; renderAsk(); return }
+  round=2;
+  waiting("Je relis vos réponses. Il reste peut-être une zone d'ombre.");
+  var trs=qa.map(function(x){return "Q : "+x.q+"\nR : "+(x.a||"(pas de réponse)")}).join("\n\n");
+  ai.json("BESOIN INITIAL :\n"+st.besoin+"\n\nINTERROGATOIRE DÉJÀ MENÉ :\n"+trs+
+    "\n\nTu es un expert de ce domaine. Repère ce qui reste flou, contradictoire, non chiffré ou non répondu, et qui t'empêcherait encore de produire un résultat juste.\nÉcris au maximum 3 questions de relance. Chaque relance doit citer ce que la personne a dit, puis demander la précision qui manque.\nS'il n'y a rien de sérieux à creuser, réponds exactement : []\nVouvoiement, en français, 25 mots maximum par question.\n\nMême format JSON :\n[{\"q\":\"…\",\"label\":\"…\",\"hint\":\"…\"}]")
+   .then(function(a){
+     var more=clean(a).slice(0,3);
+     if(!more.length){ afterQuestions(); return }
+     r2start=qa.length; cur=qa.length; qa=qa.concat(more); renderAsk();
+   })
+   .catch(function(){ var m=vague(); if(!m.length){ afterQuestions(); return }
+     r2start=qa.length; cur=qa.length; qa=qa.concat(m); renderAsk() });
+}
+function renderAsk(){
+  var q=qa[cur];
+  $("as-eye").textContent=((r2start>=0&&cur>=r2start)?"Relance":"Interrogatoire")+" · Question "+(cur+1)+" sur "+qa.length;
+  $("as-ask").textContent=q.q;
+  $("as-guide").textContent=q.hint||""; $("as-guide").hidden=!q.hint;
+  $("as-txt").value=q.a||""; grow($("as-txt"));
+  $("as-go").textContent=(cur===qa.length-1)?"Terminer":"Suivant";
+  show("sc-ask",.45+.4*(cur/(qa.length+1)));
+}
+function advance(){
+  qa[cur].a=$("as-txt").value.trim();
+  if(cur<qa.length-1){ cur++; renderAsk(); return }
+  if(round===1) followups(); else afterQuestions();
+}
+$("as-go").onclick=advance;
+$("as-skip").onclick=function(){ $("as-txt").value=""; advance() };
+$("as-back").onclick=function(){
+  qa[cur].a=$("as-txt").value.trim();
+  if(cur>0){ cur--; renderAsk() } else openNeed();
+};
+
+/* --- orthographe, grammaire et sens : le correcteur qui marche sans IA --- */
+var L="\\p{L}\\p{M}";
+function esc(x){ return x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") }
+function wordRe(p,f){ return new RegExp("(^|[^"+L+"])(?:"+p+")(?![" +L+ "])",(f||"")+"giu") }
+
+var TICS=["on va dire ça comme ça","et tout le tralala","patati patata","et tout ça","voilà quoi",
+ "on va dire","tu vois","vous voyez","du coup quoi","euh+","heu","hein","bah","ben"];
+
+/* élisions que la dictée sépare ou rate */
+var ELIS=[
+ ["que il","qu'il"],["que ils","qu'ils"],["que elle","qu'elle"],["que elles","qu'elles"],
+ ["que on","qu'on"],["que un","qu'un"],["que une","qu'une"],["que en","qu'en"],
+ ["si il","s'il"],["si ils","s'ils"],["ce est","c'est"],["ce était","c'était"],
+ ["je ai","j'ai"],["je aime","j'aime"],["je aimerais","j'aimerais"],["je étais","j'étais"],
+ ["ne a","n'a"],["ne est","n'est"],["ne ai","n'ai"],["ne ont","n'ont"],["ne y a","n'y a"],
+ ["de un","d'un"],["de une","d'une"],["de abord","d'abord"],["de accord","d'accord"],
+ ["me a","m'a"],["te a","t'a"],["se est","s'est"],["ça c'est passé","ça s'est passé"],
+ ["ça c'est produit","ça s'est produit"],["ça c'est fait","ça s'est fait"],
+ ["c est","c'est"],["j ai","j'ai"],["n est","n'est"],["n ai","n'ai"],["d un","d'un"],
+ ["d une","d'une"],["qu il","qu'il"],["qu elle","qu'elle"],["qu on","qu'on"],["s il","s'il"],
+ ["l on","l'on"],["j aimerais","j'aimerais"],["il y a pas","il n'y a pas"],["peu être","peut-être"]
+];
+
+/* confusions de sens : le mot juste se décide par le voisinage */
+var SENS=[
+ {a:"filles",b:"failles",n:/(intelligence artificielle|\bIA\b|sécurit|systèm|logiciel|réseau|informatiq|vulnérab|donnée|code|serveur)/i},
+ {a:"fille",b:"faille",n:/(intelligence artificielle|\bIA\b|sécurit|systèm|logiciel|réseau|informatiq|vulnérab|serveur)/i},
+ {a:"mètre",b:"mettre",n:/(en place|à jour|au point|de côté|en œuvre|en oeuvre)/i},
+ {a:"quand",b:"quant",n:/(quand (à|au|aux) (moi|toi|lui|elle|nous|vous|eux))/i},
+ {a:"tache",b:"tâche",n:/(travail|liste|quotidien|répétit|faire|accompli|planning|équipe)/i},
+ {a:"sale",b:"salle",n:/(réunion|classe|attente|manger|conférence|sport|bain)/i},
+ {a:"sa",b:"ça",n:/(sa (va|marche|dépend|veut dire|se passe|fait|suffit|m'|me |ne va)) /i},
+ {a:"se",b:"ce",n:/(se (que|qui|n'est|sont|seront|serait|sera|dont|serai)) /i},
+ {a:"ces",b:"c'est",n:/(ces (pas|un |une |le |la |les |très|vraiment|pour|à |plus|moins|ça)) /i},
+ {a:"ses",b:"c'est",n:/(ses (pas|un |une |très|vraiment|pour cela)) /i},
+ {a:"peu",b:"peut",n:/(peu (faire|aller|venir|voir|avoir|donner|prendre|arriver|servir)) /i},
+ {a:"on",b:"ont",n:/(on (été|eu|fait|dit|pris|mis|vu|donné|compris|envoyé)) /i},
+ {a:"son",b:"sont",n:/(son (allés|venus|partis|restés|arrivés)) /i},
+ {a:"a",b:"à",n:/(a (partir de|nouveau|propos|travers|peu près|cause de|condition|l'heure|savoir|mon avis|votre avis|court terme|long terme)) /i},
+ {a:"la",b:"là",n:/(la (bas|dedans|dessus|dessous)) /i},
+ {a:"ou",b:"où",n:/(ou (est-ce|se trouve|en sommes|en suis|j'en)) /i},
+ {a:"donner",b:"données",n:/(base de|traitement des|jeu de)/i}
+];
+
+function polish(x){
+  if(!x) return "";
+  var s=String(x).replace(/\s+/g," ").trim();
+
+  TICS.forEach(function(w){ s=s.replace(wordRe(w.indexOf("+")>0?w:esc(w)),"$1 ") });
+  s=s.replace(/\s+/g," ");
+  s=s.replace(wordRe("je peu"),"$1je peux").replace(wordRe("tu peu"),"$1tu peux");
+  s=s.replace(/(ça|cela) c'est ((?:\S+ ){0,3})(passé|produit|fait|déroulé|terminé|arrêté|améliorer)/gi,"$1 s'est $2$3");
+
+  SENS.forEach(function(r){
+    var re=wordRe(esc(r.a));
+    s=s.replace(re,function(m,pre,off){
+      var win=s.slice(Math.max(0,off-70),off+90);
+      return r.n.test(win) ? pre+r.b : m;
+    });
+  });
+
+  ELIS.forEach(function(e){
+    s=s.replace(wordRe(esc(e[0])),function(m,pre){
+      var r=e[1];
+      return pre + (/^[A-ZÀ-Þ]/.test(m.trim().charAt(0)) ? r.charAt(0).toUpperCase()+r.slice(1) : r);
+    });
+  });
+  s=s.replace(new RegExp("(^|[^"+L+"])(le|la)\\s+([aàâeéèêiîoôuûy])","giu"),"$1l'$3");
+  s=s.replace(new RegExp("(^|[^"+L+"])(l|d|j|n|qu|m|t)\\s+([aàâeéèêiîoôuûy]["+L+"])","giu"),"$1$2'$3");
+
+  if(s.length<4000){
+    var W="[\\p{L}\\p{M}'’-]+";
+    var re=new RegExp("(^|[^"+L+"])("+W+"(?:\\s+"+W+"){0,4})(\\s+\\2)+(?![" +L+ "])","giu");
+    var prev;
+    do{ prev=s; s=s.replace(re,"$1$2") }while(s!==prev && s.length);
+  }
+
+  var p2;
+  do{ p2=s; s=s.replace(/[\s,]*(?:(?:donc|et|puis)\s+)?(voilà|quoi|ouais|bon|hein)(?=\s*$|\s*[.!?])/giu,"") }while(s!==p2);
+
+  s=s.replace(/\s+([,.])/g,"$1").replace(/([,.])([A-Za-zÀ-ÿ])/g,"$1 $2");
+  s=s.replace(/\s*([;:!?])/g," $1").replace(/([;:!?])([A-Za-zÀ-ÿ])/g,"$1 $2");
+  s=s.replace(/ {2,}/g," ").trim();
+  s=s.replace(/(^|[.!?]\s+)(\p{Ll})/gu,function(m,p,c){ return p+c.toUpperCase() });
+  if(s && !/[.!?…]$/.test(s)) s+=".";
+  return s;
+}
+
+function aiPolish(){
+  var items=[st.besoin].concat(qa.filter(function(x){return x.a}).map(function(x){return x.a}));
+  return ai.json("Voici des phrases dictées à la voix par une personne, dans l'ordre. La reconnaissance vocale a pu se tromper de mot.\n\n"+
+   "Pour chacune :\n"+
+   "- corrige l'orthographe, la grammaire, les accords et la ponctuation ;\n"+
+   "- quand un mot est visiblement mal transcrit, remplace-le par celui que le contexte impose (« ton » là où le sens veut « bon », « filles » là où il s'agit de « failles ») ;\n"+
+   "- quand un mot a manifestement sauté et rend la phrase bancale, rétablis-le s'il est évident d'après la suite (« au de l'intelligence artificielle » devient « au niveau de l'intelligence artificielle ») ;\n"+
+   "- si une phrase reste incompréhensible même en cherchant, laisse-la telle quelle plutôt que d'inventer ;\n"+
+   "- supprime les tics de langage, les hésitations et les répétitions ;\n"+
+   "- remets de la logique dans l'enchaînement, pour que ça se lise comme une phrase écrite et non dictée.\n\n"+
+   "Interdits absolus : changer le sens, ajouter une information absente, retirer un détail, réécrire dans un autre style. Garde ses mots quand ils sont corrects.\n\n"+
+   "Réponds uniquement avec un tableau JSON de "+items.length+" chaînes, dans le même ordre, rien d'autre.\n\n"+
+   JSON.stringify(items))
+   .then(function(r){
+     if(!Array.isArray(r)||r.length!==items.length) return;
+     st.besoin=String(r[0]); var k=1;
+     qa.forEach(function(x){ if(x.a) x.a=String(r[k++]) });
+   }).catch(function(){});
+}
+
+/* ===================== DIRECTION ARTISTIQUE ===================== */
+var STYLES=[
+ {id:"minimal",n:"Minimalisme",d:"Épuré, fonctionnel, centré sur l'essentiel : grands vides, typographie soignée, palette restreinte. Réf. Apple.",
+  t:'<i style="left:16px;top:17px;width:36px;height:2px;background:#111"></i><i style="left:16px;top:29px;width:14px;height:14px;background:#111"></i>'},
+ {id:"maximal",n:"Maximalisme",d:"« More is more » : couleurs vives, motifs complexes, superpositions, densité exubérante. Réf. Gucci d'Alessandro Michele.",bg:"#FFD400",
+  t:'<i style="left:4px;top:6px;width:34px;height:34px;border-radius:50%;background:#E5006D"></i><i style="left:28px;top:20px;width:34px;height:34px;background:#00A3E0"></i><i style="left:56px;top:4px;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:28px solid #7CD800"></i><i style="left:8px;top:44px;width:74px;height:6px;background:#111"></i>'},
+ {id:"surreal",n:"Surréaliste",d:"Onirique et absurde : des éléments réels assemblés dans des configurations impossibles. Réf. René Magritte.",bg:"linear-gradient(#9CCDF5,#E4F1FB)",
+  t:'<i style="left:31px;top:7px;width:30px;height:30px;border-radius:50%;background:#111"></i><i style="left:6px;top:34px;width:36px;height:13px;border-radius:13px;background:#fff"></i><i style="left:56px;top:38px;width:18px;height:18px;border-radius:50%;background:#C0392B"></i>'},
+ {id:"swiss",n:"Suisse",d:"Lisibilité, objectivité, harmonie : grilles rigoureuses, sans-serif, compositions asymétriques. Réf. Müller-Brockmann.",
+  t:'<i style="left:8px;top:8px;width:34px;height:44px;background:#D0021B"></i><i style="left:48px;top:9px;width:36px;height:5px;background:#111"></i><i style="left:48px;top:19px;width:24px;height:5px;background:#111"></i><i style="left:48px;top:29px;width:36px;height:5px;background:#111"></i><i style="left:48px;top:39px;width:16px;height:5px;background:#111"></i>'},
+ {id:"y2k",n:"Y2K",d:"Futurisme rétro de l'an 2000 : chromes, dégradés vibrants, bulles translucides. Réf. l'iMac G3 transparent.",bg:"linear-gradient(135deg,#dfe7f5,#aebfdd,#f2f4f8,#93a6c6)",
+  t:'<i style="left:26px;top:11px;width:42px;height:38px;border-radius:50%;background:radial-gradient(circle at 32% 26%,#fff,#cfd8e8 45%,#7f90b3)"></i>'},
+ {id:"editorial",n:"Éditorial",d:"Mise en page de magazine : contrastes typographiques forts, superpositions texte-image, élégance soignée. Réf. Vogue.",
+  t:'<s style="left:9px;top:4px;font-family:var(--serif);font-weight:700;font-size:36px;color:#111">Aa</s><i style="left:9px;top:47px;width:74px;height:1px;background:#111"></i><i style="left:9px;top:52px;width:46px;height:1px;background:#111"></i>'},
+ {id:"pixel",n:"Pixel art",d:"Image construite pixel par pixel, nostalgie des jeux 8 et 16 bits. Réf. Minecraft, Stardew Valley.",
+  t:'<i style="inset:0;background:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 12px),repeating-linear-gradient(0deg,#000 0 6px,transparent 6px 12px);opacity:.12"></i><i style="left:24px;top:12px;width:12px;height:12px;background:#3B9E4B"></i><i style="left:36px;top:12px;width:12px;height:12px;background:#8B5A2B"></i><i style="left:24px;top:24px;width:24px;height:12px;background:#4A90D9"></i><i style="left:48px;top:24px;width:12px;height:24px;background:#D94A4A"></i>'},
+ {id:"clay",n:"Clay",d:"3D ludique et tactile : formes rebondies en pâte à modeler, éclairage doux. Réf. Wallace et Gromit.",bg:"#F4EEFB",
+  t:'<i style="left:10px;top:10px;width:40px;height:40px;border-radius:18px;background:#C3AEF0;box-shadow:0 6px 10px rgba(120,90,180,.3)"></i><i style="left:46px;top:22px;width:32px;height:32px;border-radius:50%;background:#F6C3D6;box-shadow:0 6px 10px rgba(200,120,150,.3)"></i>'},
+ {id:"glass",n:"Glassmorphisme",d:"Verre dépoli : transparence, flou d'arrière-plan, fines bordures lumineuses, éléments flottants. Réf. macOS Big Sur.",bg:"linear-gradient(120deg,#FF9ECD,#7AD0FF)",
+  t:'<i style="left:13px;top:12px;width:66px;height:36px;border-radius:10px;background:rgba(255,255,255,.38);border:1px solid rgba(255,255,255,.8)"></i>'},
+ {id:"cyber",n:"Cyberpunk",d:"Science-fiction dystopique : mégapoles sombres, néons roses et cyan, ambiance rebelle. Réf. Blade Runner.",bg:"#080A18",
+  t:'<i style="left:0;top:15px;width:92px;height:2px;background:#FF2BD1;box-shadow:0 0 9px #FF2BD1"></i><i style="left:0;top:35px;width:92px;height:2px;background:#22E7FF;box-shadow:0 0 9px #22E7FF"></i><i style="left:16px;top:5px;width:2px;height:50px;background:#FF2BD1;box-shadow:0 0 7px #FF2BD1"></i><i style="left:70px;top:5px;width:2px;height:50px;background:#22E7FF;box-shadow:0 0 7px #22E7FF"></i>'},
+ {id:"pop",n:"Pop art",d:"Culture populaire et bande dessinée : couleurs saturées, aplats vifs, trame de points, répétition. Réf. Andy Warhol.",bg:"#FFE600",
+  t:'<i style="inset:0;background:radial-gradient(#E5006D 1.6px,transparent 1.8px) 0 0/8px 8px;opacity:.8"></i><i style="left:16px;top:12px;width:36px;height:36px;border-radius:50%;background:#0057B8"></i><i style="left:46px;top:26px;width:30px;height:22px;background:#111"></i>'},
+ {id:"retro",n:"Rétro",d:"Esthétiques des années 50 à 80 : tons moutarde, terracotta et olive, textures granuleuses, typographies vintage.",
+  t:'<i style="left:0;top:0;width:92px;height:20px;background:#D9A441"></i><i style="left:0;top:20px;width:92px;height:20px;background:#6E7343"></i><i style="left:0;top:40px;width:92px;height:20px;background:#B5654A"></i><i style="inset:0;background:radial-gradient(rgba(255,255,255,.4) .6px,transparent .7px) 0 0/3px 3px"></i>'},
+ {id:"collage",n:"Collage",d:"Assemblage d'éléments hétérogènes : coupures de magazines, photos, textures de papier. Réf. Sgt. Pepper des Beatles.",bg:"#E8E5DF",
+  t:'<i style="left:5px;top:8px;width:40px;height:30px;background:#fff;transform:rotate(-7deg);box-shadow:0 1px 2px rgba(0,0,0,.22)"></i><i style="left:40px;top:15px;width:34px;height:34px;background:#8A8A8A;transform:rotate(5deg)"></i><i style="left:19px;top:34px;width:30px;height:18px;background:#C0392B;transform:rotate(3deg)"></i>'},
+ {id:"vector",n:"Vectoriel",d:"Points, lignes et courbes mathématiques : traits nets, aplats parfaits, aucune pixellisation. Réf. Shepard Fairey.",
+  t:'<i style="left:9px;top:13px;width:32px;height:32px;border-radius:50%;background:#2F6DF6"></i><i style="left:34px;top:23px;width:30px;height:22px;border-radius:6px;background:#F5A623"></i><i style="left:61px;top:11px;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:22px solid #2BB673"></i>'},
+ {id:"futur",n:"Futuriste",d:"Projection dans le futur : lignes épurées, interfaces holographiques, métal et néons froids. Réf. Tron Legacy.",bg:"#0A1020",
+  t:'<i style="left:10px;top:31px;width:72px;height:1px;background:#8FE9FF"></i><i style="left:10px;top:37px;width:48px;height:1px;background:#8FE9FF;opacity:.6"></i><i style="left:26px;top:9px;width:40px;height:40px;border-radius:50%;border:1px solid #8FE9FF"></i><i style="left:36px;top:19px;width:20px;height:20px;border-radius:50%;background:linear-gradient(140deg,#fff,#7d8aa0)"></i>'},
+ {id:"hand",n:"Manuscrit",d:"Chaleureux, humain, imparfait : pinceau, craie ou stylo. Authenticité et artisanat. Réf. cafés de spécialité.",bg:"#FFFDF6",
+  t:'<s style="left:8px;top:8px;font-family:Caveat,cursive;font-size:32px;color:#1A1A1A">Bonjour</s><i style="left:10px;top:45px;width:58px;height:2px;background:#1A1A1A;border-radius:2px;transform:rotate(-3deg)"></i>'},
+ {id:"boho",n:"Bohème",d:"Nature, voyage et slow-living : motifs floraux doux, terracotta et ocre, formes organiques. Réf. Anthropologie.",bg:"#EFE2D3",
+  t:'<i style="left:8px;top:16px;width:40px;height:40px;border-radius:40px 40px 0 0;background:#B5654A"></i><i style="left:52px;top:9px;width:28px;height:28px;border-radius:50%;background:#7D8B5A"></i><i style="left:50px;top:41px;width:34px;height:14px;border-radius:14px;background:#D8C3A5"></i>'},
+ {id:"graff",n:"Graffiti",d:"Urbain, expressif, rebelle : lettrages complexes, coulures, contrastes de bombe aérosol. Réf. Banksy, Futura 2000.",bg:"#6E6E6E",
+  t:'<i style="inset:0;background:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1.2px) 0 0/4px 4px"></i><s style="left:5px;top:9px;font-family:var(--sans);font-weight:600;font-size:25px;color:#FF3EA5;-webkit-text-stroke:2px #111;letter-spacing:-.04em">WILD</s><i style="left:9px;top:43px;width:62px;height:8px;background:#7CD800;transform:rotate(-5deg)"></i>'},
+ {id:"aurora",n:"Aurora",d:"Dégradés fluides et vaporeux, comme une aurore boréale ou la lumière à travers la soie. Très doux, planant.",bg:"#0B1026",
+  t:'<i style="inset:-25%;background:radial-gradient(60% 60% at 25% 40%,#6CF2C0,transparent 70%),radial-gradient(55% 55% at 70% 28%,#6BA8FF,transparent 70%),radial-gradient(60% 60% at 55% 78%,#B98CFF,transparent 70%);filter:blur(7px)"></i>'},
+ {id:"victo",n:"Victorien",d:"Orné et somptueux : ornements baroques, cadres dorés, serif décoratifs, raffinement ancien. Réf. étiquettes de whisky.",bg:"#13261D",
+  t:'<i style="left:6px;top:5px;width:78px;height:48px;border:2px solid #C9A227"></i><i style="left:11px;top:10px;width:68px;height:38px;border:1px solid #C9A227;opacity:.55"></i><s style="left:36px;top:13px;font-family:var(--serif);font-weight:700;font-size:28px;color:#C9A227">V</s>'}
+];
+
+var TYPOS=[
+ {id:"serifmod",n:"Serif modernes",f:"'Playfair Display',serif",
+  d:"Contraste saisissant entre traits fins et épais, empattements horizontaux nets. Luxe éditorial et élégance intemporelle. Idéal : mode, cosmétique, design d'intérieur.",
+  fonts:[{f:"Playfair Display"},{f:"Bodoni Moda"},{f:"Cinzel"}]},
+ {id:"geo",n:"Géométriques",f:"Montserrat,sans-serif",
+  d:"Bâties sur des cercles et rectangles purs, avec des proportions étudiées loin des polices surutilisées. Idéal : corporate minimaliste, tech, architecture.",
+  fonts:[{f:"Montserrat"},{f:"League Spartan"},{f:"Syne"}]},
+ {id:"brut",n:"Brutalistes",f:"'Space Grotesk',sans-serif",
+  d:"Lourdes, brutes, parfois décalées. Elles cassent les codes de lisibilité pour un impact visuel fort. Idéal : maximalisme, mode underground, culture urbaine.",
+  fonts:[{f:"Space Grotesk"},{f:"Archivo",o:"Cabinet Grotesk"},{f:"Archivo Black",o:"Clash Display"}]},
+ {id:"neo",n:"Néo-grotesques",f:"'Public Sans',sans-serif",
+  d:"Neutres en apparence, mais avec un détail qui leur donne une âme éditoriale. Idéal : branding d'agence, web design épuré, présentations polyvalentes.",
+  fonts:[{f:"Inter"},{f:"Public Sans",o:"Neue Haas Grotesk"},{f:"Plus Jakarta Sans",o:"General Sans"}]},
+ {id:"human",n:"Humanistes",f:"Lora,serif",
+  d:"Sensation organique, tracée à la main ou inspirée de la plume. Chaleur et proximité. Idéal : marques éco-responsables, artisanat, édition littéraire.",
+  fonts:[{f:"Lora"},{f:"Merriweather"},{f:"Source Serif 4"}]},
+ {id:"retrofut",n:"Rétro-futuristes",f:"Fredoka,sans-serif",
+  d:"Lettres rebondies, courbes fluides, inspirations psychédéliques ou premiers temps du numérique. Très fortes en titrage. Idéal : portfolios, mode, musique.",
+  fonts:[{f:"DynaPuff"},{f:"Outfit",o:"Mona Sans"},{f:"Fredoka",o:"CoFo Peshka"}]},
+ {id:"mono",n:"Monospaces",f:"'Space Mono',monospace",
+  d:"Chasse fixe, inspirée des terminaux et du code. Look immédiatement savant et structuré. Idéal : tech, data, fintech, portfolios de développeurs.",
+  fonts:[{f:"JetBrains Mono"},{f:"Space Mono"},{f:"Fira Code"}]},
+ {id:"chunky",n:"Serif trapézoïdales",f:"'Zilla Slab',serif",
+  d:"Empattements massifs et rectangulaires, air rétro-américain des années 70 réinterprété. Idéal : titres percutants, éditorial audacieux.",
+  fonts:[{f:"Changa One"},{f:"Zilla Slab"},{f:"Archivo Black",o:"Clash Display"}]},
+ {id:"eleg",n:"Élégantes",f:"'Cormorant Garamond',serif",
+  d:"Empattements très fins et interlettrage large, comme dans les magazines de mode de premier plan. Idéal : luxe, joaillerie, éditorial haut de gamme.",
+  fonts:[{f:"Cormorant Garamond"},{f:"Prata",o:"Ogg"},{f:"Libre Baskerville"}]},
+ {id:"script",n:"Scriptes",f:"Caveat,cursive",
+  d:"Lettrages à la main maîtrisés, loin des cursives illisibles : la spontanéité d'un carnet ou d'une signature. Idéal : citations, blogs lifestyle, marques créatives.",
+  fonts:[{f:"Caveat"},{f:"Reenie Beanie"},{f:"Yellowtail"}]}
+];
+
+var PALS=[
+ {id:"earthy",n:"Earthy Harmony",d:"Ancré, chaleureux, intemporel",c:[["Clay Beige","#D9C7B8"],["Warm Taupe","#A89685"],["Terracotta","#B5654A"],["Olive Green","#6E7343"],["Sandstone","#C9A97F"]]},
+ {id:"nature",n:"Nature's Balance",d:"Apaisant, frais, équilibré",c:[["Sage Green","#A3B18A"],["Moss","#5E6B4F"],["Eucalyptus","#8FA99B"],["Soft Ivory","#F3EFE6"],["Natural Linen","#E0D8C8"]]},
+ {id:"depth",n:"Modern Depth",d:"Affirmé, sophistiqué, intemporel",c:[["Deep Navy","#16233A"],["Ink Blue","#24344D"],["Steel Blue","#4A6079"],["Charcoal","#333639"],["Warm Grey","#8C877F"]]},
+ {id:"sunset",n:"Sunset Terracotta",d:"Chaleureux, accueillant, expressif",c:[["Dusty Rose","#C99A93"],["Terracotta","#B5654A"],["Coral Clay","#D97E5F"],["Peach Fuzz","#FFBE98"],["Cinnamon","#8C4A2F"]]},
+ {id:"serenity",n:"Minimal Serenity",d:"Net, doux, discret",c:[["Cool White","#F7F8F9"],["Pebble","#DCD9D4"],["Greige","#BFB8AE"],["Mist Blue","#AFBFC9"],["Soft Cloud","#E8EBED"]]},
+ {id:"burgundy",n:"Burgundy & Beige",d:"Riche, élégant, intemporel",c:[["Burgundy","#6E1E2B"],["Deep Wine","#4A1220"],["Warm Beige","#D8C3A5"],["Taupe","#A89685"],["Cream","#F5EFE6"]]},
+ {id:"statue",n:"Dark Statue & Red",d:"Sombre avec un accent rouge",c:[["Noir profond","#222223"],["Blanc pur","#FEFEFE"],["Rouge brique","#B62A2D"],["Rose poudré","#E6A8A8"],["Corail sombre","#D5575E"]]},
+ {id:"jupiter",n:"Jupiter",d:"Terracotta foncé sur ténèbres",c:[["Noir ténébreux","#1B191A"],["Blanc cassé","#E9E4E0"],["Rouille","#943A1F"]]},
+ {id:"air",n:"Breath of Fresh Air",d:"Bleu nuit et orange vif",c:[["Bleu nuit","#172A39"],["Blanc grisé","#E9E4E0"],["Orange vif","#FC563C"],["Gris moyen","#6E7575"]]},
+ {id:"cactus",n:"Planet Desert",d:"Verts naturels et moutarde",c:[["Blanc pur","#FFFFFF"],["Moutarde doux","#F1B24A"],["Vert sapin","#164A41"],["Vert sauge","#4D774E"],["Vert pastel","#9DC88D"]]},
+ {id:"emerald",n:"Emerald & Gold",d:"Premium, profond, précieux",c:[["Émeraude","#0F5A46"],["Or","#D4AF37"],["Neutre clair","#F2EFE9"],["Teal foncé","#0A2E28"]]},
+ {id:"premium",n:"Minimal Premium",d:"Luxe moderne, sans couleur",c:[["Noir jais","#0B0B0B"],["Blanc pur","#FFFFFF"],["Gris argent","#C7C9CA"],["Gris neutre","#6E7071"]]},
+ {id:"navy",n:"Navy & Cream",d:"Élégant, premium, rassurant",c:[["Bleu marine","#0F172A"],["Crème","#F8F5F0"],["Or doux","#C9A227"],["Bleu ardoise","#334155"]]},
+ {id:"blackgold",n:"Black & Gold",d:"Luxe classique",c:[["Blanc doux","#F5F5F5"],["Or","#D4AF37"],["Noir profond","#0B0B0B"],["Charbon","#2C2C2C"]]},
+ {id:"vogue",n:"Vogue Noir & Blanc",d:"Minimalisme absolu, contraste maximal",c:[["Noir encre","#000000"],["Blanc pur","#FFFFFF"]]},
+ {id:"nude",n:"Nude & Ivoire",d:"Éditorial chic, doux pour les yeux",c:[["Blanc ivoire","#FAF9F6"],["Lin fin","#EFECE9"],["Noir espresso","#1A1A1A"]]}
+];
+
+var CLI=[
+ {g:"Couleurs",items:[
+  {id:"viol",n:"Dégradé violet ou noir-violet",p:"Aucun dégradé violet, ni violet-noir, quelle que soit l'opacité.",
+   t:'<i style="inset:0;background:linear-gradient(140deg,#130026,#7A2FF7)"></i>'},
+  {id:"neon",n:"Couleurs néon",p:"Aucune couleur néon ni fluorescente, aucun effet de halo lumineux.",bg:"#0A0A0A",
+   t:'<i style="left:12px;top:23px;width:68px;height:3px;background:#39FF14;box-shadow:0 0 10px #39FF14"></i><i style="left:12px;top:36px;width:44px;height:3px;background:#FF00E5;box-shadow:0 0 10px #FF00E5"></i>'},
+  {id:"pastel",n:"Pastels fades",p:"Aucune palette pastel délavée et sans contraste.",
+   t:'<i style="left:10px;top:14px;width:16px;height:32px;background:#F3E3E7"></i><i style="left:28px;top:14px;width:16px;height:32px;background:#E3EEF3"></i><i style="left:46px;top:14px;width:16px;height:32px;background:#E9F3E3"></i><i style="left:64px;top:14px;width:16px;height:32px;background:#F3EFE3"></i>'},
+  {id:"arc",n:"Couleurs arc-en-ciel",p:"Aucun dégradé arc-en-ciel ni multicolore.",
+   t:'<i style="inset:0;background:linear-gradient(90deg,#FF004D,#FF8A00,#FFE600,#2BB673,#2F6DF6,#8B2FF7)"></i>'},
+  {id:"bande",n:"Bande colorée en haut de page",p:"Aucun bandeau ni filet de dégradé décoratif en haut de page.",
+   t:'<i style="left:0;top:0;width:92px;height:5px;background:linear-gradient(90deg,#7A2FF7,#22E7FF)"></i><i style="left:12px;top:22px;width:50px;height:4px;background:#DDD"></i><i style="left:12px;top:32px;width:68px;height:4px;background:#EEE"></i>'}]},
+ {g:"Mise en page",items:[
+  {id:"cartes",n:"Trois cartes de features alignées",p:"Aucune rangée de trois cartes de fonctionnalités alignées et identiques.",
+   t:'<i style="left:7px;top:16px;width:24px;height:28px;border-radius:5px;background:#E8E8E8"></i><i style="left:34px;top:16px;width:24px;height:28px;border-radius:5px;background:#E8E8E8"></i><i style="left:61px;top:16px;width:24px;height:28px;border-radius:5px;background:#E8E8E8"></i>'},
+  {id:"bento",n:"Grille en bento",p:"Aucune grille en bento, c'est-à-dire des boîtes de tailles inégales agencées en mosaïque.",
+   t:'<i style="left:7px;top:9px;width:40px;height:24px;background:#E8E8E8"></i><i style="left:50px;top:9px;width:35px;height:24px;background:#EFEFEF"></i><i style="left:7px;top:36px;width:24px;height:16px;background:#EFEFEF"></i><i style="left:34px;top:36px;width:51px;height:16px;background:#E8E8E8"></i>'},
+  {id:"arrondi",n:"Coins beaucoup trop arrondis",p:"Pas de rayons de bordure exagérés qui donnent un aspect mou ou jouet ; garde des angles maîtrisés.",
+   t:'<i style="left:12px;top:12px;width:68px;height:36px;border-radius:18px;background:#E8E8E8"></i>'},
+  {id:"shadow",n:"Ombres portées partout",p:"Aucune ombre portée systématique sous chaque bloc pour simuler de la profondeur.",
+   t:'<i style="left:16px;top:13px;width:60px;height:30px;background:#fff;border:1px solid #EEE;box-shadow:0 10px 16px rgba(0,0,0,.28)"></i>'},
+  {id:"verre",n:"Verre dépoli",p:"Aucun effet de verre dépoli ni de panneau translucide flouté.",bg:"linear-gradient(120deg,#FF9ECD,#7AD0FF)",
+   t:'<i style="left:13px;top:13px;width:66px;height:34px;border-radius:10px;background:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.8)"></i>'},
+  {id:"dots",n:"Fond en grille de points",p:"Aucun fond constitué d'une grille de petits points.",
+   t:'<i style="inset:0;background:radial-gradient(#BBB 1.2px,transparent 1.4px) 0 0/9px 9px"></i>'},
+  {id:"orbes",n:"Orbes floues en arrière-plan",p:"Aucune tache de couleur floutée flottant en arrière-plan.",bg:"#fff",
+   t:'<i style="left:6px;top:6px;width:44px;height:44px;border-radius:50%;background:#B98CFF;filter:blur(9px)"></i><i style="left:44px;top:14px;width:42px;height:42px;border-radius:50%;background:#6BD5FF;filter:blur(9px)"></i>'}]},
+ {g:"Animations et détails",items:[
+  {id:"etoiles",n:"Icônes d'étoiles scintillantes",p:"Aucune icône d'étoile scintillante pour signaler l'intelligence artificielle ou la nouveauté.",
+   t:'<s style="left:19px;top:8px;font-size:28px;color:#7A2FF7">✦</s><s style="left:53px;top:26px;font-size:19px;color:#22B8FF">✦</s>'},
+  {id:"fleches",n:"Flèches animées",p:"Aucune flèche animée ni élément qui bouge pour attirer l'œil artificiellement.",
+   t:'<s style="left:26px;top:11px;font-size:30px;color:#111">→</s><i style="left:16px;top:38px;width:20px;height:2px;background:#CCC"></i><i style="left:40px;top:38px;width:12px;height:2px;background:#E2E2E2"></i>'},
+  {id:"survol",n:"Animations au survol partout",p:"Aucun effet de survol sur chaque élément ; réserve le mouvement à ce qui le mérite.",
+   t:'<i style="left:12px;top:14px;width:54px;height:28px;border-radius:6px;background:#EFEFEF;box-shadow:0 9px 14px rgba(0,0,0,.25)"></i><s style="left:58px;top:30px;font-size:20px;color:#111">➤</s>'},
+  {id:"loader",n:"Loader en écran blanc figé",p:"Pas d'écran blanc figé pendant le chargement ; montre du contenu ou une attente qui a du sens.",
+   t:'<i style="left:34px;top:18px;width:24px;height:24px;border-radius:50%;border:3px solid #E8E8E8;border-top-color:#9A9A9A"></i>'},
+  {id:"emoji",n:"Emojis dans les titres",p:"Aucun emoji en début de titre ou de section.",
+   t:'<i style="left:13px;top:19px;width:17px;height:17px;border-radius:50%;background:#FFC93C"></i><i style="left:36px;top:24px;width:44px;height:7px;background:#DDD"></i>'},
+  {id:"checks",n:"Puces à coches vertes",p:"Aucune liste à puces composée de petites coches vertes.",
+   t:'<s style="left:12px;top:8px;font-size:15px;color:#2BB673">✓</s><i style="left:30px;top:14px;width:50px;height:5px;background:#E4E4E4"></i><s style="left:12px;top:24px;font-size:15px;color:#2BB673">✓</s><i style="left:30px;top:30px;width:38px;height:5px;background:#E4E4E4"></i><s style="left:12px;top:40px;font-size:15px;color:#2BB673">✓</s><i style="left:30px;top:46px;width:44px;height:5px;background:#E4E4E4"></i>'}]},
+ {g:"Typographie",items:[
+  {id:"inter",n:"La police Inter",p:"N'utilise pas Inter ; choisis une alternative moins vue du même registre.",
+   t:'<s style="left:9px;top:12px;font-family:Inter,system-ui,sans-serif;font-size:29px;color:#111">Inter</s>'},
+  {id:"geist",n:"La police Geist",p:"N'utilise pas Geist ; choisis une alternative moins vue du même registre.",
+   t:'<s style="left:9px;top:12px;font-family:system-ui,sans-serif;font-size:29px;color:#111">Geist</s>'},
+  {id:"grotesk",n:"La police Space Grotesk",p:"N'utilise pas Space Grotesk ; choisis une alternative moins vue du même registre.",
+   t:'<s style="left:6px;top:14px;font-family:\'Space Grotesk\',sans-serif;font-size:21px;color:#111">Space Grotesk</s>'}]},
+ {g:"Contenu et écriture",items:[
+  {id:"xy",n:"La formule « ce n’est pas X, c’est Y »",p:"N'emploie jamais la tournure publicitaire « ce n'est pas X, c'est Y », ni ses variantes.",
+   t:'<s style="left:8px;top:14px;width:76px;display:block;font-family:var(--sans);font-size:12px;line-height:1.5;color:#111">Ce n’est pas un outil.<br><b style="font-weight:600">C’est votre avantage.</b></s>'},
+  {id:"temoins",n:"Témoignages inventés",p:"N'invente aucun témoignage, aucun avis client, aucun nom ni aucune photo de personne.",
+   t:'<s style="left:10px;top:8px;font-size:11px;color:#F5A623">★★★★★</s><s style="left:10px;top:23px;width:74px;display:block;font-size:10px;color:#666">« Ça a changé ma vie »</s><i style="left:10px;top:40px;width:14px;height:14px;border-radius:50%;background:#C9D3DE"></i><i style="left:29px;top:45px;width:40px;height:5px;background:#E4E4E4"></i>'},
+  {id:"pricing",n:"Grille de prix à trois colonnes",p:"Aucune grille tarifaire à trois colonnes avec l'offre du milieu mise en avant.",
+   t:'<i style="left:8px;top:18px;width:22px;height:28px;background:#EDEDED"></i><i style="left:34px;top:10px;width:24px;height:40px;background:#111"></i><i style="left:62px;top:18px;width:22px;height:28px;background:#EDEDED"></i>'},
+  {id:"demo",n:"Aucune démonstration du produit",p:"Ne te contente pas de décrire : montre concrètement le résultat en action, avec un exemple réel.",
+   t:'<i style="left:14px;top:12px;width:64px;height:36px;border:1px solid #DDD;background:#FAFAFA"></i><i style="left:40px;top:23px;width:0;height:0;border-left:14px solid #BBB;border-top:9px solid transparent;border-bottom:9px solid transparent"></i><i style="left:14px;top:12px;width:78px;height:1px;background:#C0392B;transform:rotate(29deg);transform-origin:0 0"></i>'}]}
+];
+
+function byId(list,id){ for(var i=0;i<list.length;i++) if(list[i].id===id) return list[i]; return null }
+function esc2(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") }
+function thumb(o){ return '<span class="th" style="background:'+(o.bg||"#fff")+'">'+o.t+'</span>' }
+
+function buildList(host,items,arr,max,limEl,render,cls,after){
+  host.textContent="";
+  items.forEach(function(o){
+    var li=document.createElement("li");
+    var b=document.createElement("button"); b.type="button"; b.className="row "+(cls||"rich");
+    b.setAttribute("aria-pressed", arr.indexOf(o.id)>=0?"true":"false");
+    b.innerHTML=render(o);
+    b.onclick=function(){
+      var i=arr.indexOf(o.id);
+      if(i>=0){ arr.splice(i,1); b.setAttribute("aria-pressed","false"); if(limEl) limEl.hidden=true; }
+      else if(max && arr.length>=max){
+        if(limEl){ limEl.textContent="Deux au maximum. Décochez-en un avant d'en choisir un autre."; limEl.hidden=false }
+        return;
+      } else { arr.push(o.id); b.setAttribute("aria-pressed","true"); if(limEl) limEl.hidden=true }
+      if(after) after();
+      if(host.id==="cl-groups"||cls==="cli") countCli();
+    };
+    li.appendChild(b); host.appendChild(li);
+  });
+}
+
+function countSel(id,n,sing,plur,fem){
+  var e=$(id); if(!e) return;
+  e.className="count";
+  var acc="coché"+(fem?"e":"")+(n>1?"s":"");
+  e.textContent = n ? (n+" "+(n>1?plur:sing)+" "+acc)
+                    : ((fem?"Aucune ":"Aucun ")+sing+" coché"+(fem?"e":"")+" pour l'instant.");
+}
+
+/* ---- oui / non ---- */
+function openAD(){
+  var ul=$("ad-list"); ul.textContent="";
+  [{id:"oui",n:"Oui, je choisis",d:"Style visuel, typographie et palette de couleurs. Trois écrans."},
+   {id:"non",n:"Non, je passe",d:"L'IA décidera de l'esthétique à ma place."}].forEach(function(o){
+    var li=document.createElement("li");
+    var b=document.createElement("button"); b.type="button"; b.className="row";
+    b.setAttribute("aria-pressed","false");
+    b.innerHTML='<span class="mark"></span><span class="t">'+o.n+'</span><span class="d">'+o.d+'</span>';
+    b.onclick=function(){ st.ad=(o.id==="oui"); if(st.ad) openStyle(); else openCli() };
+    li.appendChild(b); ul.appendChild(li);
+  });
+  show("sc-ad",.62);
+}
+$("ad-back").onclick=function(){ if(qa.length){ cur=qa.length-1; renderAsk() } else openNeed() };
+
+/* ---- styles ---- */
+function openStyle(){
+  buildList($("st-list"),STYLES,st.styles,0,null,function(o){
+    return '<span class="mark"></span>'+thumb(o)+'<span class="t">'+o.n+'</span><span class="d">'+esc2(o.d)+'</span>';
+  },"rich",function(){ countSel("st-lim",st.styles.length,"style","styles") });
+  countSel("st-lim",st.styles.length,"style","styles");
+  show("sc-style",.66);
+}
+$("st-back").onclick=openAD;
+$("st-go").onclick=function(){ openTypo() };
+
+/* ---- typographie ---- */
+var FONTS_ON=false;
+function loadTypoFonts(){
+  if(FONTS_ON) return; FONTS_ON=true;
+  var fams=[];
+  TYPOS.forEach(function(c){ c.fonts.forEach(function(f){ if(fams.indexOf(f.f)<0) fams.push(f.f) }) });
+  var alpha="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 '’-&.,:;!?éèêàâçîôûÉÈÀÇ";
+  for(var i=0;i<fams.length;i+=5){
+    var grp=fams.slice(i,i+5).map(function(n){ return "family="+encodeURIComponent(n).replace(/%20/g,"+") }).join("&");
+    var l=document.createElement("link"); l.rel="stylesheet";
+    l.href="https://fonts.googleapis.com/css2?"+grp+"&text="+encodeURIComponent(alpha)+"&display=swap";
+    document.head.appendChild(l);
+  }
+}
+function openTypo(){
+  loadTypoFonts();
+  buildList($("ty-list"),TYPOS,st.typos,0,null,function(o){
+    return '<span class="mark"></span><span class="t" style="font-family:'+o.f+';font-size:23px">'+o.n+
+      '</span><span class="d">'+esc2(o.d)+'</span>';
+  },"rich",function(){ countSel("ty-lim",st.typos.length,"catégorie","catégories",1) });
+  countSel("ty-lim",st.typos.length,"catégorie","catégories",1);
+  show("sc-typo",.70);
+}
+$("ty-back").onclick=openStyle;
+$("ty-go").onclick=function(){ if(st.typos.length) openFont(); else openPal() };
+
+/* ---- police précise ---- */
+function fontOK(name){
+  if(!document.fonts||!document.fonts.load) return Promise.resolve(true);
+  try{ return document.fonts.load('16px "'+name+'"',"Aa").then(function(a){ return a.length>0 },function(){ return false }) }
+  catch(e){ return Promise.resolve(false) }
+}
+function openFont(){
+  loadTypoFonts();
+  var host=$("fo-blocks"); host.textContent="";
+  st.typos.forEach(function(cid){
+    var c=byId(TYPOS,cid);
+    var h=document.createElement("p"); h.className="grp"; h.textContent=c.n;
+    if(!host.children.length) h.className="grp first";
+    host.appendChild(h);
+    var ul=document.createElement("ul"); ul.className="list";
+    var opts=c.fonts.concat([{f:"",lbl:"Peu importe"}]);
+    opts.forEach(function(f){
+      var li=document.createElement("li");
+      var b=document.createElement("button"); b.type="button"; b.className="row";
+      b.setAttribute("aria-pressed",(st.fonts[cid]||"")===f.f?"true":"false");
+      var spec=f.f
+        ? '<span class="t" style="flex:1 1 auto"><span class="spec" style="font-family:\''+f.f+'\','+(/Mono|Code/.test(f.f)?"monospace":"sans-serif")+'">Votre projet en trois mots</span>'+
+          '<span class="small">'+f.f+(f.o?" · proche de "+f.o+", qui est payante":"")+'<span data-chk="'+f.f+'"></span></span></span>'
+        : '<span class="t" style="flex:1 1 auto">Peu importe<span class="small">Les trois noms partiront dans le prompt, l\'IA choisira.</span></span>';
+      b.innerHTML='<span class="mark"></span>'+spec;
+      b.onclick=function(){
+        st.fonts[cid]=f.f;
+        Array.prototype.forEach.call(ul.querySelectorAll(".row"),function(x){x.setAttribute("aria-pressed","false")});
+        b.setAttribute("aria-pressed","true");
+      };
+      li.appendChild(b); ul.appendChild(li);
+      if(f.f) fontOK(f.f).then(function(ok){
+        if(!ok){ var s=b.querySelector('[data-chk="'+f.f+'"]'); if(s) s.textContent=" — aperçu indisponible" }
+      });
+    });
+    host.appendChild(ul);
+  });
+  show("sc-font",.74);
+}
+$("fo-back").onclick=openTypo;
+$("fo-go").onclick=function(){ openPal() };
+
+/* ---- palettes ---- */
+function openPal(){
+  buildList($("pa-list"),PALS,st.pals,0,null,function(o){
+    var dots=o.c.map(function(x){
+      return '<b><em style="background:'+x[1]+'"></em>'+esc2(x[0])+' '+x[1]+'</b>';
+    }).join("");
+    return '<span class="mark"></span><span class="t">'+esc2(o.n)+'</span><span class="d">'+esc2(o.d)+
+      '<span class="pal">'+dots+'</span></span>';
+  },"rich",function(){ countSel("pa-lim",st.pals.length,"palette","palettes",1) });
+  countSel("pa-lim",st.pals.length,"palette","palettes",1);
+  show("sc-pal",.78);
+}
+$("pa-back").onclick=function(){ if(st.typos.length) openFont(); else openTypo() };
+$("pa-go").onclick=function(){ openCli() };
+
+/* ---- clichés ---- */
+function countCli(){
+  var n=st.cliches.length;
+  $("cl-count").textContent=n?(n+" coché"+(n>1?"s":"")):"Aucune case cochée pour l'instant.";
+}
+function openCli(){
+  var host=$("cl-groups"); host.textContent="";
+  CLI.forEach(function(g,gi){
+    var h=document.createElement("p"); h.className="grp"+(gi?"":" first"); h.textContent=g.g;
+    host.appendChild(h);
+    var ul=document.createElement("ul"); ul.className="list";
+    buildList(ul,g.items,st.cliches,0,null,function(o){
+      return '<span class="mark"></span>'+thumb(o)+'<span class="t">'+esc2(o.n)+'</span>';
+    },"cli");
+    host.appendChild(ul);
+  });
+  countCli();
+  show("sc-cli",.84);
+}
+$("cl-back").onclick=function(){ if(st.ad) openPal(); else openAD() };
+$("cl-go").onclick=function(){ openFmt() };
+$("cl-all").onclick=function(){
+  st.cliches.length=0;
+  CLI.forEach(function(g){ g.items.forEach(function(o){ st.cliches.push(o.id) }) });
+  openCli();
+};
+$("cl-none").onclick=function(){ st.cliches.length=0; openCli() };
+
+/* ---- blocs du prompt ---- */
+function adBlock(p){
+  if(!st.ad) return;
+  var l=[];
+  if(st.styles.length){
+    l.push("Style visuel : "+join(st.styles.map(function(id){ return byId(STYLES,id).n }))+".");
+    st.styles.forEach(function(id){ var s=byId(STYLES,id); l.push("  "+s.n+" — "+s.d) });
+  }
+  st.typos.forEach(function(id){
+    var c=byId(TYPOS,id), ch=st.fonts[id];
+    l.push("Typographie : "+c.n+" — "+c.d);
+    l.push(ch ? "  Police souhaitée : "+ch+"."
+              : "  Au choix parmi : "+c.fonts.map(function(f){return f.f}).join(", ")+".");
+  });
+  var ban=[];
+  if(st.cliches.indexOf("inter")>=0) ban.push("Inter");
+  if(st.cliches.indexOf("geist")>=0) ban.push("Geist");
+  if(st.cliches.indexOf("grotesk")>=0) ban.push("Space Grotesk");
+  if(ban.length&&st.typos.length) l.push("  Malgré ce qui précède, n'utilise pas "+ban.join(", ")+" : propose une alternative moins usée du même registre.");
+  st.pals.forEach(function(id){
+    var pl=byId(PALS,id);
+    l.push("Palette : "+pl.n+" ("+pl.d+") — "+pl.c.map(function(x){ return x[0]+" "+x[1] }).join(", ")+".");
+  });
+  if(st.pals.length) l.push("Respecte ces codes hexadécimaux exactement, sans les approcher ni les remplacer.");
+  if(l.length){ p.push(""); p.push("# DIRECTION ARTISTIQUE"); l.forEach(function(x){ p.push(x) }) }
+}
+function cliBlock(p){
+  var ph=[];
+  CLI.forEach(function(g){ g.items.forEach(function(o){ if(st.cliches.indexOf(o.id)>=0) ph.push(o.p) }) });
+  if(!ph.length) return;
+  p.push(""); p.push("# À PROSCRIRE — CE QUI TRAHIRAIT UN TRAVAIL FAIT PAR L'IA");
+  p.push("Ces interdictions priment sur toute habitude de style :");
+  ph.forEach(function(x){ p.push("- "+x) });
+}
+function afterQuestions(){ openAD() }
+
+/* --- format --- */
+function pills(host,list,key){
+  host.textContent="";
+  list.forEach(function(o){
+    var b=document.createElement("button"); b.type="button"; b.className="pill"; b.textContent=o.label;
+    b.setAttribute("aria-pressed", st[key]===o.id?"true":"false");
+    b.onclick=function(){ st[key]=o.id;
+      Array.prototype.forEach.call(host.querySelectorAll(".pill"),function(x){x.setAttribute("aria-pressed","false")});
+      b.setAttribute("aria-pressed","true") };
+    host.appendChild(b);
+  });
+}
+function pillsMulti(host,list,key,exclu){
+  host.textContent="";
+  function draw(){ Array.prototype.forEach.call(host.querySelectorAll(".pill"),function(x){
+    x.setAttribute("aria-pressed", st[key].indexOf(x.getAttribute("data-id"))>=0?"true":"false") }) }
+  list.forEach(function(o){
+    var b=document.createElement("button"); b.type="button"; b.className="pill"; b.textContent=o.label;
+    b.setAttribute("data-id",o.id); b.setAttribute("aria-pressed","false");
+    b.onclick=function(){
+      var i=st[key].indexOf(o.id);
+      if(i>=0) st[key].splice(i,1);
+      else if(o.id===exclu){ st[key].length=0; st[key].push(o.id) }
+      else { st[key].push(o.id); var e=st[key].indexOf(exclu); if(e>=0) st[key].splice(e,1) }
+      draw();
+    };
+    host.appendChild(b);
+  });
+  draw();
+}
+function generate(){
+  st.besoin=polish(st.besoin);
+  qa.forEach(function(x){ if(x.a) x.a=polish(x.a) });
+  if(ai){ waiting("Je relis votre texte : orthographe, grammaire, répétitions."); aiPolish().then(finish) }
+  else finish();
+}
+function finish(){
+  original=build(); $("out").textContent=original;
+  $("revert").hidden=true; $("ot-err").hidden=true; $("toast").textContent="";
+  var n=qa.filter(function(x){return x.a}).length;
+  $("ot-guide").textContent="Construit à partir de "+n+" réponse"+(n>1?"s":"")+" que personne d'autre n'aurait pu donner à votre place. Le texte a été relu et corrigé.";
+  show("sc-out",1);
+}
+function countFmt(){
+  var n=st.formats.length;
+  $("ft-count").textContent=n?(n+" format"+(n>1?"s":"")+" coché"+(n>1?"s":"")):"Aucun format coché pour l'instant.";
+}
+function syncFmt(){
+  Array.prototype.forEach.call($("ft-groups").querySelectorAll("[data-fid]"),function(b){
+    b.setAttribute("aria-pressed", st.formats.indexOf(b.getAttribute("data-fid"))>=0?"true":"false");
+  });
+  var o=$("ft-other"); o.hidden = st.formats.indexOf("autre")<0;
+  if(!o.hidden) grow($("ft-txt"));
+  countFmt();
+}
+function openFmt(){
+  var host=$("ft-groups"); host.textContent="";
+  FMT.forEach(function(g,gi){
+    var h=document.createElement("p"); h.className="grp"+(gi?"":" first"); h.textContent=g.g; host.appendChild(h);
+    var ul=document.createElement("ul"); ul.className="list";
+    g.items.forEach(function(o){
+      var li=document.createElement("li");
+      var b=document.createElement("button"); b.type="button"; b.className="row cli";
+      b.setAttribute("data-fid",o.id); b.setAttribute("aria-pressed","false");
+      b.innerHTML='<span class="mark"></span><span class="t">'+esc2(o.l)+'</span>';
+      b.onclick=function(){
+        var i=st.formats.indexOf(o.id);
+        if(i>=0) st.formats.splice(i,1);
+        else if(o.id==="libre"){ st.formats.length=0; st.formats.push("libre") }
+        else { st.formats.push(o.id); var e=st.formats.indexOf("libre"); if(e>=0) st.formats.splice(e,1) }
+        $("ft-lim").hidden=true; syncFmt();
+        if(o.id==="autre"&&i<0){ $("ft-txt").focus(); $("ft-other").scrollIntoView({behavior:"smooth",block:"center"}) }
+      };
+      li.appendChild(b); ul.appendChild(li);
+    });
+    host.appendChild(ul);
+  });
+  $("ft-txt").value=st.formatAutre||"";
+  pills($("det"),DETAILS,"detail");
+  $("ft-lim").hidden=true; syncFmt();
+  show("sc-fmt",.90);
+}
+$("ft-back").onclick=function(){ openCli() };
+$("ft-go").onclick=function(){
+  if(!st.formats.length){ $("ft-lim").textContent="Cochez au moins un format pour continuer."; $("ft-lim").hidden=false; return }
+  if(st.formats.indexOf("autre")>=0 && !$("ft-txt").value.trim()){
+    $("ft-lim").textContent="Précisez le format que vous voulez, ou décochez « Autre format ».";
+    $("ft-lim").hidden=false; $("ft-txt").focus(); return }
+  st.formatAutre=$("ft-txt").value.trim();
+  if(st.formats.length>=2) openAsm(); else { st.asm=""; st.asmMain=""; generate() }
+};
+
+function openAsm(){
+  $("am-guide").textContent="Vous avez coché : "+st.formats.map(fmtLabel).join(", ")+". Voulez-vous que tout tienne dans un seul fichier, ou des fichiers séparés ?";
+  var ul=$("am-list"); ul.textContent="";
+  [{id:"combine",n:"Tout dans un seul fichier",d:"Par exemple un PowerPoint qui contient déjà les tableaux et les images à l'intérieur."},
+   {id:"separe",n:"Des fichiers séparés",d:"Chaque format livré à part, l'un après l'autre."}].forEach(function(o){
+    var li=document.createElement("li");
+    var b=document.createElement("button"); b.type="button"; b.className="row";
+    b.setAttribute("aria-pressed", st.asm===o.id?"true":"false");
+    b.innerHTML='<span class="mark"></span><span class="t">'+o.n+'</span><span class="d">'+o.d+'</span>';
+    b.onclick=function(){
+      st.asm=o.id;
+      Array.prototype.forEach.call(ul.querySelectorAll(".row"),function(x){x.setAttribute("aria-pressed","false")});
+      b.setAttribute("aria-pressed","true"); $("am-lim").hidden=true; drawMain();
+    };
+    li.appendChild(b); ul.appendChild(li);
+  });
+  drawMain();
+  show("sc-asm",.94);
+}
+function drawMain(){
+  var box=$("am-main");
+  if(st.asm!=="combine"){ box.hidden=true; return }
+  box.hidden=false;
+  var ul=$("am-mainlist"); ul.textContent="";
+  st.formats.filter(function(f){ return f!=="libre" }).forEach(function(f){
+    var li=document.createElement("li");
+    var b=document.createElement("button"); b.type="button"; b.className="row cli";
+    b.setAttribute("aria-pressed", st.asmMain===f?"true":"false");
+    b.innerHTML='<span class="mark"></span><span class="t">'+esc2(fmtLabel(f))+'</span>';
+    b.onclick=function(){
+      st.asmMain=f;
+      Array.prototype.forEach.call(ul.querySelectorAll(".row"),function(x){x.setAttribute("aria-pressed","false")});
+      b.setAttribute("aria-pressed","true"); $("am-lim").hidden=true;
+    };
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+$("am-back").onclick=function(){ openFmt() };
+$("am-go").onclick=function(){
+  if(!st.asm){ $("am-lim").textContent="Choisissez entre un seul fichier et des fichiers séparés."; $("am-lim").hidden=false; return }
+  if(st.asm==="combine"&&!st.asmMain){ $("am-lim").textContent="Indiquez lequel des formats contient les autres."; $("am-lim").hidden=false; return }
+  generate();
+};
+
+function build(){
+  var p=[];
+  p.push("# RÔLE");
+  p.push("Tu es "+roleText()+". Tu travailles avec méthode et tu vas droit au concret.");
+  p.push("");
+  p.push("# CONTEXTE");
+  p.push("Domaine : "+join(labelsOf(DOMAINES,st.domaines,st.domaineAutre))+".");
+  p.push("Ce que je cherche à obtenir, avec mes mots : "+st.besoin);
+  var det=qa.filter(function(x){return x.a});
+  if(det.length){ p.push(""); p.push("# CE QUE JE T'AI PRÉCISÉ");
+    det.forEach(function(x){ p.push("- "+x.label+" : "+x.a) }) }
+  p.push("");
+  p.push("# TÂCHE");
+  p.push("Ce que je te demande : "+low(join(labelsOf(ACTIONS,st.actions,st.actionAutre)))+".");
+  p.push("Ce sur quoi ça porte : "+join(labelsOf(objList(),st.objets,st.objetAutre))+".");
+  p.push("Le format exact du fichier attendu est défini plus bas, dans la rubrique FORMAT DE SORTIE.");
+  adBlock(p);
+  var fs=st.formats.length?st.formats:["libre"];
+  p.push("");
+  p.push("# CONTRAINTES");
+  p.push("- Réponds en français.");
+  p.push("- Niveau de détail : "+DETAIL_TXT[st.detail]+".");
+  if(fs.length===1||st.asm==="combine") p.push("- Produis un seul livrable complet, pas plusieurs variantes à comparer.");
+  else p.push("- Produis les "+fs.length+" livrables demandés, chacun en entier, pas plusieurs variantes de chacun.");
+  p.push("- N'invente aucune information que je ne t'ai pas donnée : si tu dois supposer quelque chose, dis-le.");
+  p.push("- Soigne la langue : orthographe, grammaire, vocabulaire précis, aucune répétition de mot d'une phrase à l'autre.");
+  cliBlock(p);
+  p.push("");
+  p.push("# FORMAT DE SORTIE");
+  p.push("Cette rubrique fait foi. Si une autre partie du prompt semble dire autre chose sur la forme du résultat, c'est celle-ci qui décide.");
+  if(fs.length===1){ p.push(fmtLine(fs[0])); }
+  else if(st.asm==="combine"){
+    var mn=st.asmMain||fs[0];
+    p.push("Un seul fichier final : "+fmtLabel(mn)+".");
+    p.push(fmtLine(mn));
+    p.push("Ce fichier doit intégrer à l'intérieur de lui-même, et non à côté :");
+    fs.forEach(function(f){ if(f!==mn) p.push("- "+fmtLabel(f)+" \u2014 "+fmtLine(f)) });
+  } else {
+    p.push("Livre "+fs.length+" fichiers distincts, l'un après l'autre, clairement séparés et nommés :");
+    fs.forEach(function(f,i){ p.push((i+1)+". "+fmtLabel(f)+" \u2014 "+fmtLine(f)) });
+  }
+  p.push("");
+  p.push("# MÉTHODE");
+  p.push("1. Si une information vraiment essentielle te manque encore, pose-moi au maximum 3 questions avant de produire quoi que ce soit.");
+  p.push("2. Sinon, produis directement le livrable.");
+  p.push("3. Termine par la liste des hypothèses que tu as prises à ma place, pour que je puisse les corriger.");
+  return p.join("\n");
+}
+
+/* --- IA : soit la page Claude, soit le pont Cloudflare --- */
+function pontAppel(prompt){
+  return fetch(PONT,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({prompt:prompt})})
+   .then(function(r){ return r.json().then(function(d){
+     if(!r.ok||d.error) throw {code:(r.status===502&&/[Qq]uota/.test(d.error||""))?"rate_limited":"service", message:d.error||""};
+     return String(d.text||"");
+   })});
+}
+function pontJson(prompt){
+  return pontAppel(prompt).then(function(txt){
+    var s=String(txt).trim();
+    var m=s.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if(m) s=m[1].trim();
+    var a=s.indexOf("["), b=s.lastIndexOf("]"), o=s.indexOf("{"), c=s.lastIndexOf("}");
+    if(a>=0&&b>a) s=s.slice(a,b+1); else if(o>=0&&c>o) s=s.slice(o,c+1);
+    return JSON.parse(s);
+  });
+}
+function brancherPont(){
+  if(!PONT) return;
+  ai={ json:pontJson, text:function(p){ return pontAppel(p) } };
+  $("refine").hidden=false;
+}
+if(window.claude&&window.claude.use){
+  window.claude.use("sample").then(function(m){
+    if(m){ ai={ json:function(p){ return m.json(p) },
+                text:function(p,o){ return m(p,o).then(function(r){ return r.text }) } };
+           $("refine").hidden=false; }
+    else brancherPont();
+  }).catch(brancherPont);
+} else brancherPont();
+
+function aiMsg(c){
+  if(c==="not_granted") return "L'affinage n'est pas autorisé sur cette page.";
+  if(c==="rate_limited") return "Trop de demandes d'affilée. Réessayez dans une minute.";
+  if(c==="cancelled") return "";
+  if(c==="service") return "Le service d'IA n'a pas répondu. Votre prompt reste utilisable tel quel.";
+  return "L'affinage n'a pas abouti. Votre prompt reste utilisable tel quel.";
+}
+$("refine").onclick=function(){
+  if(!ai) return;
+  var b=$("refine"); ctl=new AbortController();
+  b.disabled=true; $("stop").hidden=false; $("ot-err").hidden=true; $("out").textContent="Je relis votre prompt…";
+  ai.text("Voici un prompt destiné à une IA. Resserre-le sans changer l'intention et sans inventer la moindre information absente.\nSupprime les formulations vagues, ajoute les précisions que le métier concerné implique évidemment, garde les sections et le français.\nRéponds uniquement avec le prompt amélioré, sans introduction ni commentaire.\n\n---\n"+original,
+    {signal:ctl.signal,onText:function(e){ $("out").textContent=e.text }})
+   .then(function(txt){ if(txt) $("out").textContent=txt; $("revert").hidden=false })
+   .catch(function(e){ $("out").textContent=(e&&e.text)||original;
+     var m=aiMsg(e&&e.code); if(m){ $("ot-err").textContent=m; $("ot-err").hidden=false } })
+   .then(function(){ b.disabled=false; $("stop").hidden=true });
+};
+$("stop").onclick=function(){ if(ctl) ctl.abort() };
+$("revert").onclick=function(){ $("out").textContent=original; $("revert").hidden=true };
+
+$("copy").onclick=function(){
+  var t=$("out").textContent;
+  var ok=function(){ $("toast").textContent="Copié."; setTimeout(function(){$("toast").textContent=""},2600) };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok,fb); else fb();
+  function fb(){
+    var ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); ok() }catch(e){ $("toast").textContent="Sélectionnez le texte et copiez-le." }
+    ta.remove();
+  }
+};
+$("ot-back").onclick=function(){ openFmt() };
+$("restart").onclick=reset;
+function reset(){
+  st={actions:[],actionAutre:"",objets:[],objetAutre:"",domaines:[],domaineAutre:"",besoin:"",formats:[],formatAutre:"",asm:"",asmMain:"",detail:"equilibre",ad:false,styles:[],typos:[],fonts:{},pals:[],cliches:[]};
+  qa=[]; cur=0; round=0; r2start=-1; $("nd-txt").value=""; $("as-txt").value=""; renderPick(1);
+}
+
+$("demo").onclick=function(){
+  st.actions=["creer"]; st.objets=["tableau"]; st.domaines=["rh"]; st.formats=["xlsx"]; st.detail="detaille";
+  st.ad=true; st.styles=["editorial","swiss"]; st.typos=["serifmod"]; st.fonts={serifmod:"Playfair Display"};
+  st.pals=["vogue"]; st.cliches=["viol","neon","arc","cartes","bento","shadow","etoiles","emoji","checks","inter","xy","temoins"];
+  st.besoin="Un seul tableau consolidé que chaque collaborateur en centre remplit pour recenser les anomalies et insuffisances de son pays sur la paie et l'administration, puis renvoie au siège pour analyse.";
+  qa=[
+   {label:"Anomalies fréquentes",q:"",hint:"",a:"Saisie des absences et congés mal faite, saisies volontaires comme les prêts mal maîtrisées, difficulté à lire un bulletin et à comprendre une régularisation."},
+   {label:"Répartition des saisies",q:"",hint:"",a:"Le centre saisit, mais dès qu'il faut analyser un bulletin ou une régularisation, ça remonte au siège. Jusqu'à une heure par dossier."},
+   {label:"Volumes",q:"",hint:"",a:"Une douzaine de centres, une trentaine de lignes par mois au total."},
+   {label:"Une ligne = quoi",q:"",hint:"",a:"Une anomalie constatée, pour pouvoir filtrer et compter ensuite."},
+   {label:"Listes déroulantes",q:"",hint:"",a:"Tout doit être en liste fermée sauf la description : pays, centre, domaine paie ou administration, type d'anomalie, fréquence, traité en centre ou remonté, statut."},
+   {label:"Et après",q:"",hint:"",a:"Le siège consolide les retours, compte par centre et par type, et en tire un plan de formation chiffré."},
+   {label:"Échecs passés",q:"",hint:"",a:"On s'est retrouvé avec plusieurs tableaux séparés au lieu d'un seul, et des réponses en texte libre inexploitables."}
+  ];
+  pills($("det"),DETAILS,"detail");
+  original=build(); $("out").textContent=original;
+  $("revert").hidden=true; $("ot-err").hidden=true; $("toast").textContent="";
+  $("ot-guide").textContent="Construit à partir de 7 réponses que personne d'autre n'aurait pu donner à votre place.";
+  show("sc-out",1);
+};
+
+renderPick(1);
+})();
+
+</script>
+
+</body>
+</html>
